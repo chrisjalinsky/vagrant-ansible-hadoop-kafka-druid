@@ -1,0 +1,25 @@
+---
+
+- name: Ensure realtime wikipedia spec config exists if realtime node
+  template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: examples/wikipedia/wikipedia_realtime.spec
+      dest: "{{ druid_home }}/druid-{{ druid.version }}/examples/wikipedia/wikipedia_realtime.spec"
+
+- name: Ensure realtime config exists if realtime node
+  template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: realtime/runtime.properties
+      dest: "{{ druid_home }}/druid-{{ druid.version }}/config/realtime/runtime.properties"
+
+- name: "Start realtime node if druid_mode is set"
+  shell: "java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec -classpath config/_common:config/realtime:lib/* io.druid.cli.Main server realtime"
+  args:
+    chdir: "{{ druid_home }}/druid-{{ druid.version }}"
+  async: 31536000
+  poll: 0
+  register: realtime_node_started

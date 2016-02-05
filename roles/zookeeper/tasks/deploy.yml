@@ -1,0 +1,26 @@
+---
+- group: name=zookeeper system=yes
+- user: name=zookeeper group=zookeeper system=yes
+
+- name: Change ownership on zookeeper directory.
+  file: path={{zookeeper_dir}} state=directory owner=zookeeper group=zookeeper recurse=yes
+
+- name: Create zookeeper data folder.
+  file: path={{zookeeper_data}} state=directory recurse=yes owner=zookeeper group=zookeeper
+
+- name: Create zookeeper logs folder.
+  file: path={{zookeeper_logs}} state=directory recurse=yes owner=zookeeper group=zookeeper
+
+- name: Upstart script.
+  template: src=zookeeper.conf.j2 dest=/etc/init/zookeeper.conf
+
+- name: Write myid file.
+  template: src=myid.j2 dest={{zookeeper_data}}/myid owner=zookeeper group=zookeeper
+  notify: Restart zookeeper
+
+- name: Configure zookeeper
+  template: src=zoo.cfg.j2 dest={{zookeeper_dir}}/conf/zoo.cfg owner=zookeeper group=zookeeper
+  notify: Restart zookeeper
+
+- name: Start zookeeper
+  service: name=zookeeper state=started enabled=yes

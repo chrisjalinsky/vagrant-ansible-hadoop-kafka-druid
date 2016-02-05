@@ -1,0 +1,31 @@
+---
+
+- name: Add apt ppa
+  apt_repository:
+    repo: "ppa:openjdk-r/ppa"
+
+- name: Install apt package
+  apt:
+    name: openjdk-8-jdk
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Ensure JAVA_HOME environment variable set
+  lineinfile:
+    dest: /etc/environment
+    line: "JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64"
+    regexp: "^JAVA_HOME=.*$"
+
+- name: Ensure correct version of java selected
+  alternatives:
+    name: "{{ item.name }}"
+    path: "{{ item.path }}"
+  with_items:
+    - name: "java"
+      path: "/usr/lib/jvm/java-8-openjdk-amd64/jre/bin/java"
+    - name: "javac"
+      path: "/usr/lib/jvm/java-8-openjdk-amd64/bin/javac"
+
+#- name: Source environment variables file
+#  command: ". /etc/environment"
+  

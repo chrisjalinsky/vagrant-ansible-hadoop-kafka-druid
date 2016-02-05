@@ -1,0 +1,67 @@
+#
+# Druid - a distributed column store.
+# Copyright 2012 - 2015 Metamarkets Group Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+# Request logging, monitoring, and metrics
+{% if druid_request_logging_type is defined and druid_request_logging_type != "" %}
+druid.request.logging.type={{druid_request_logging_type}}
+druid.request.logging.feed={{druid_request_logging_feed}}
+druid.request.logging.dir={{druid_request_logging_dir}}
+{% endif %}
+
+# Extensions (no deep storage model is listed - using local fs for deep storage - not recommended for production)
+# Also, for production to use mysql add, "io.druid.extensions:mysql-metadata-storage"
+druid.extensions.coordinates={{druid_extensions_coordinates}}
+druid.extensions.localRepository=extensions-repo
+
+# Zookeeper
+druid.zk.service.host={{druid_zk_ips}}
+
+# Metadata Storage (use something like mysql in production by uncommenting properties below)
+# by default druid will use derby
+# druid.metadata.storage.type=mysql
+# druid.metadata.storage.connector.connectURI=jdbc:mysql://localhost:3306/druid
+# druid.metadata.storage.connector.user=druid
+# druid.metadata.storage.connector.password=diurd
+
+{% if druid_metadata_storage_type is defined and druid_metadata_storage_type != "" %}
+druid.metadata.storage.type={{druid_metadata_storage_type}}
+druid.metadata.storage.connector.connectURI={{druid_metadata_storage_connector_connectURI}}
+druid.metadata.storage.connector.user={{druid_metadata_storage_connector_user}}
+druid.metadata.storage.connector.password={{druid_metadata_storage_connector_password}}
+{% endif %}
+
+# Deep storage (local filesystem for examples - don't use this in production)
+{% if druid_storage_type is defined and druid_storage_type != "local" %}
+druid.storage.type={{druid_storage_type}}
+druid.storage.storageDirectory={{druid_storage_storageDirectory}}
+{% else %}
+druid.storage.type=local
+druid.storage.storageDirectory=/tmp/druid/localStorage
+{% endif %}
+
+# Query Cache (we use a simple 10mb heap-based local cache on the broker)
+druid.cache.type=local
+druid.cache.sizeInBytes=10000000
+
+# Indexing service discovery
+druid.selectors.indexing.serviceName=overlord
+
+# Monitoring (disabled for examples, if you enable SysMonitor, make sure to include sigar jar in your cp)
+# druid.monitoring.monitors=["com.metamx.metrics.SysMonitor","com.metamx.metrics.JvmMonitor"]
+
+# Metrics logging (disabled for examples - change this to logging or http in production)
+druid.emitter=noop

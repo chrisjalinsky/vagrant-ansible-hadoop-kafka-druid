@@ -1,0 +1,9 @@
+- file: path=/opt/src state=directory
+
+- file: path={{confluent_dir}} state=directory
+
+- name: Download confluent package
+  get_url: url={{confluent_pkg_url}} dest=/opt/src/confluent-{{confluent_version}}.tar.gz
+
+- name: Unpack tarball
+  command: tar zxf /opt/src/confluent-{{confluent_version}}.tar.gz --strip-components=1 chdir={{confluent_dir}} creates={{confluent_dir}}/bin

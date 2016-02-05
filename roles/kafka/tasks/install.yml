@@ -1,0 +1,9 @@
+- file: path=/opt/src state=directory
+
+- file: path={{kafka_dir}} state=directory
+
+- name: Download kafka package
+  get_url: url={{kafka_pkg_url}} dest=/opt/src/kafka-{{kafka_version}}.tar.gz
+
+- name: Unpack tarball
+  command: tar zxf /opt/src/kafka-{{kafka_version}}.tar.gz --strip-components=1 chdir={{kafka_dir}} creates={{kafka_dir}}/bin

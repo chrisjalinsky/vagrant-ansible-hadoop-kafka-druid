@@ -1,0 +1,9 @@
+---
+
+- name: "Ensure common runtime properties exist"
+  template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: _common/common.runtime.properties
+      dest: "{{ druid_dir }}/config/_common/common.runtime.properties"

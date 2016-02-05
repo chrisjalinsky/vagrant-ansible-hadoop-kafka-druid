@@ -1,0 +1,5 @@
+{% if hadoop_namenode_slaves is defined and hadoop_namenode_slaves|length > 0 %}
+{% for slave in hadoop_namenode_slaves %}
+{{ slave }}
+{% endfor %}
+{% endif %}

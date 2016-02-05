@@ -1,0 +1,14 @@
+---
+
+- name: Test ansible_fqdn and inventory_hostname are equal
+  assert:
+    that: "{{ ansible_fqdn == inventory_hostname }}"
+  failed_when: False
+  changed_when: True
+  register: matching_hostnames
+  ignore_errors: yes
+
+- name: Ensure hostname set to inventory hostname
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when: matching_hostnames|changed

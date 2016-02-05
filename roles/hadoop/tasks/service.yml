@@ -1,0 +1,11 @@
+---
+
+#- name: Create hadoop logs folder.
+#  file: path={{hadoop_logs}} state=directory recurse=yes owner=hadoop group=hadoop
+
+#- name: Kafka Upstart script.
+#  template: src=hadoop.conf dest=/etc/init/hadoop.conf
+
+#
+#- name: Start hadoop
+#  service: name=hadoop state=started enabled=yes

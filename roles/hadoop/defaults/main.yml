@@ -1,0 +1,41 @@
+hadoop_version: "2.7.2"
+hadoop_user: "hadoop"
+hadoop_group: "hadoop"
+hadoop_home: "/home/hadoop"
+hadoop_pkg_url: "http://www.webhostingreviewjam.com/mirror/apache/hadoop/core/hadoop-{{hadoop_version}}/hadoop-{{hadoop_version}}.tar.gz"
+
+hadoop_dir: "/opt/hadoop-{{hadoop_version}}"
+hadoop_conf_dir: "{{ hadoop_dir }}/etc/hadoop"
+hadoop_log_dir: "{{ hadoop_dir }}/logs"
+
+hadoop_node_type: "namenode"
+
+# {{ hadoop_conf_dir }}/masters
+hadoop_namenode_masters: []
+
+# {{ hadoop_conf_dir }}/slaves
+hadoop_namenode_slaves: []
+
+# {{ hadoop_conf_dir }}/hadoop-env.sh
+hadoop_java_home: "/usr/bin/java"
+
+# {{ hadoop_conf_dir }}/hdfs-site.xml
+hadoop_dfs_replication: "1"
+hadoop_dfs_name_dir: "/mnt/dfs/name"
+hadoop_dfs_data_dir: "/mnt/dfs/data"
+
+# core-site.xml
+hadoop_default_fs: "localhost"
+hadoop_default_fs_port: "9000"
+
+# yarn-site.xml
+hadoop_yarn_resourcemanager_resource_tracker_address: "localhost"
+hadoop_yarn_resourcemanager_resource_tracker_port: "8025"
+hadoop_yarn_resourcemanager_scheduler_address: "localhost"
+hadoop_yarn_resourcemanager_scheduler_port: "8035"
+hadoop_yarn_resourcemanager_address: "localhost"
+hadoop_yarn_resourcemanager_port: "8050"
+
+# mapred-site.xml
+hadoop_mapred_jobtracker_address: "localhost"
+hadoop_mapred_jobtracker_port: "5431"

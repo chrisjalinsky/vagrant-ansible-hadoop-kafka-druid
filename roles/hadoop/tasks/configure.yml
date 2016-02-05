@@ -1,0 +1,30 @@
+---
+
+- name: Configure .profile
+  template: src=".profile" dest="{{hadoop_home}}/.profile" owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Configure hadoop-env
+  template: src=hadoop-env.sh dest={{hadoop_conf_dir}}/hadoop-env.sh owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  #notify: Restart hadoop
+
+- name: Configure hdfs-site.xml
+  template: src=hdfs-site.xml dest={{hadoop_conf_dir}}/hdfs-site.xml owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  #notify: Restart hadoop
+
+- name: Configure masters
+  template: src=masters dest={{hadoop_conf_dir}}/masters owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Configure slaves
+  template: src=slaves dest={{hadoop_conf_dir}}/slaves owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Configure core-site.xml
+  template: src=core-site.xml dest={{hadoop_conf_dir}}/core-site.xml owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  #notify: Restart hadoop
+
+- name: Configure mapred-site.xml
+  template: src=mapred-site.xml dest={{hadoop_conf_dir}}/mapred-site.xml owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  #notify: Restart hadoop
+
+- name: Configure yarn-site.xml
+  template: src=yarn-site.xml dest={{hadoop_conf_dir}}/yarn-site.xml owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  #notify: Restart hadoop

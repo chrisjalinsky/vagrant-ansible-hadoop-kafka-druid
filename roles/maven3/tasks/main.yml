@@ -1,0 +1,23 @@
+---
+
+- name: Remove maven repos
+  apt:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - maven
+    - maven2
+    - maven3
+
+- name: Add Maven3 apt repository
+  apt_repository:
+    repo: "ppa:andrei-pozolotin/maven3"
+    validate_certs: no
+    update_cache: yes
+
+- name: Install Maven3
+  apt:
+    name: maven3
+    update_cache: yes
+    cache_valid_time: 3600
+  

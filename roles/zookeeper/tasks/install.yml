@@ -1,0 +1,20 @@
+---
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
+#- name: Ensure openjdk-8 installed
+#  command: "java -version"
+#  register: java_version
+#  changed_when: "'1.8.0_72-internal' in java_version.stderr"
+#  failed_when: "'1.8.0_72-internal' not in java_version.stderr"
+
+- file: path=/opt/src state=directory
+- file: path={{zookeeper_dir}} state=directory
+
+- name: Download zookeeper version.
+  get_url: url={{zookeeper_url}} dest=/opt/src/zookeeper-{{zookeeper_version}}.tar.gz
+
+- name: Unpack tarball.
+  command: tar zxf /opt/src/zookeeper-{{zookeeper_version}}.tar.gz --strip-components=1 chdir={{zookeeper_dir}} creates={{zookeeper_dir}}/bin
+
+

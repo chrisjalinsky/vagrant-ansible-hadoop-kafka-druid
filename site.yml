@@ -1,0 +1,99 @@
+---
+
+- hosts: druid_cluster
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Set global cluster variable facts
+      set_fact:
+        # Used in druid/config/_common/common.runtime.properties
+        zk_ips: "{{ groups['druid_cluster'] | join(',') }}"
+        # Used in kafka server.properties
+        zk_endpoint: "{{ groups['druid_cluster'] | join(':2181,') }}:2181"
+        druid_cluster_facts:
+          cluster:
+            - host: "cd1.lan"
+              ip: "172.16.8.11"
+            - host: "cd2.lan"
+              ip: "172.16.8.12"
+            - host: "cd3.lan"
+              ip: "172.16.8.13"
+
+  roles:
+    - common
+    - hostname
+    - git
+    - openjdk-8
+    - maven3
+
+- hosts: druid_cluster
+  become: yes
+  tasks:
+    - name: Ensure 127.0.1.1 loopback is not present in etc/hosts
+      lineinfile:
+        dest: "/etc/hosts"
+        line: "127.0.1.1"
+        regexp: "127.0.1.1"
+        state: absent
+    - name: Build hosts file
+      lineinfile:
+        dest: "/etc/hosts"
+        regexp: '.*{{item.ip}} {{item.host}}$'
+        line: "{{item.ip}} {{item.host}}"
+        state: present
+      with_items: druid_cluster_facts.cluster
+
+# Druid coordinators
+- hosts: druid_cluster
+  gather_facts: false
+  become: yes
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: zookeeper
+      zookeeper_servers:
+        - "cd1.lan"
+        - "cd2.lan"
+        - "cd3.lan"
+    - role: hadoop
+      hadoop_java_home: "/usr/lib/jvm/java-8-openjdk-amd64"
+      hadoop_node_type: "{{ (inventory_hostname == 'cd1.lan') | ternary('namenode','datanode') }}"
+      hadoop_namenode_masters: ["cd1.lan"]
+      hadoop_namenode_slaves: ["cd2.lan", "cd3.lan"]
+      hadoop_dfs_replication: "2"
+      hadoop_default_fs: "cd1.lan"
+      hadoop_yarn_resourcemanager_resource_tracker_address: "cd1.lan"
+      hadoop_yarn_resourcemanager_scheduler_address: "cd1.lan"
+      hadoop_yarn_resourcemanager_address: "cd1.lan"
+      hadoop_mapred_jobtracker_address: "cd1.lan"
+      # mysql needed for druid metadata storage
+    - role: mysql
+      mysql_root_password: "{{ druid_cluster_mysql_root_password }}"
+      mysql_databases: "{{ druid_cluster_mysql_databases }}"
+      mysql_users: "{{ druid_cluster_mysql_users }}"
+    - role: kafka
+      kafka_zk_endpoint: "{{ zk_endpoint }}"
+      kafka_brokers:
+        - "cd1.lan"
+        - "cd2.lan"
+        - "cd3.lan"
+      kafka_host_name: "{{ inventory_hostname }}"
+    - role: druid
+      druid_hadoop_home: "/opt/hadoop-2.7.2"
+      druid_host_services: ["coordinator", "historical", "broker", "kafka-realtime", "realtime", "overlord"]
+      druid_zk_ips: "{{ zk_endpoint }}"
+      druid_extensions_coordinates: '["io.druid.extensions:druid-examples","io.druid.extensions:druid-kafka-eight","io.druid.extensions:mysql-metadata-storage","io.druid.extensions:druid-hdfs-storage"]'
+      druid_metadata_storage_type: "mysql"
+      druid_metadata_storage_connector_connectURI: "jdbc:mysql://cd1.lan/druid"
+      druid_metadata_storage_connector_user: "{{ druid_cluster_druid_db_user }}"
+      druid_metadata_storage_connector_password: "{{ druid_cluster_druid_db_password }}"
+      druid_storage_type: "hdfs"
+      druid_storage_storageDirectory: "hdfs://cd1.lan:9000/user/druid/segments/"
+      druid_coordinator_host: "{{ inventory_hostname }}"
+      druid_overlord_host: "{{ inventory_hostname }}"
+      druid_broker_host: "{{ inventory_hostname }}"
+      druid_realtime_host: "{{ inventory_hostname }}"
+      druid_historical_host: "{{ inventory_hostname }}"
+      druid_historical_server_maxSize: "500000000000"
+    - role: confluent

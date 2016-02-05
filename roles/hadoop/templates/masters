@@ -1,0 +1,5 @@
+{% if hadoop_namenode_masters is defined and hadoop_namenode_masters|length > 0 %}
+{% for master in hadoop_namenode_masters %}
+{{ master }}
+{% endfor %}
+{% endif %}

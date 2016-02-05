@@ -1,0 +1,9 @@
+---
+__mysql_daemon: "mysql"
+__mysql_packages:
+  - mysql-common
+  - mysql-server
+  - mysql-client
+  - python-mysqldb
+mysql_config_file: /etc/mysql/my.cnf
+mysql_socket: /var/run/mysqld/mysqld.sock

@@ -1,0 +1,73 @@
+---
+- group: name=druid system=yes
+- user: name=druid group=druid system=yes
+
+- name: Change ownership on druid directory.
+  file: path={{druid_dir}} state=directory owner=druid group=druid recurse=yes
+
+- name: Create druid data folder
+  file: path={{druid_data}} state=directory recurse=yes owner=druid group=druid
+
+- name: Create druid logs folder
+  file: path={{druid_logs}} state=directory recurse=yes owner=druid group=druid
+
+- name: Create druid java tmp dir logs folder
+  file: path={{druid_java_tmp_dir}} state=directory recurse=yes owner=druid group=druid
+
+- name: Upstart coordinator script
+  template: src=upstart/druid-coordinator.conf dest=/etc/init/druid-coordinator.conf
+  when: '"coordinator" in druid_host_services'
+
+- name: Upstart historical script
+  template: src=upstart/druid-historical.conf dest=/etc/init/druid-historical.conf
+  when: '"historical" in druid_host_services'
+
+- name: Upstart broker script
+  template: src=upstart/druid-broker.conf dest=/etc/init/druid-broker.conf
+  when: '"broker" in druid_host_services'
+
+- name: Upstart realtime script
+  template: src=upstart/druid-realtime.conf dest=/etc/init/druid-realtime.conf
+  when: '"realtime" in druid_host_services'
+
+- name: Upstart kafka realtime script
+  template: src=upstart/druid-kafka-realtime.conf dest=/etc/init/druid-kafka-realtime.conf
+  when: '"kafka-realtime" in druid_host_services'
+
+- name: Upstart overlord script
+  template: src=upstart/druid-overlord.conf dest=/etc/init/druid-overlord.conf
+  when: '"overlord" in druid_host_services'
+
+- name: Template common runtime properties
+  template: src="_common/common.runtime.properties.j2" dest="{{druid_dir}}/config/_common/common.runtime.properties"
+
+- name: Template coordinator runtime properties
+  template: src="coordinator/runtime.properties.j2" dest="{{druid_dir}}/config/coordinator/runtime.properties"
+  when: '"coordinator" in druid_host_services'
+
+- name: Template historical runtime properties
+  template: src="historical/runtime.properties.j2" dest="{{druid_dir}}/config/historical/runtime.properties"
+  when: '"historical" in druid_host_services'
+
+- name: Template broker runtime properties
+  template: src="broker/runtime.properties.j2" dest="{{druid_dir}}/config/broker/runtime.properties"
+  when: '"broker" in druid_host_services'
+
+- name: Template realtime runtime properties
+  template: src="realtime/runtime.properties.j2" dest="{{druid_dir}}/config/realtime/runtime.properties"
+  when: '"realtime" in druid_host_services or "kafka-realtime" in druid_host_services'
+
+- name: Template overlord runtime properties
+  template: src="overlord/runtime.properties.j2" dest="{{druid_dir}}/config/overlord/runtime.properties"
+  when: '"overlord" in druid_host_services'
+
+- name: Template wikipedia_realtime spec
+  template: src="wikipedia_realtime.spec" dest="{{druid_dir}}/examples/wikipedia/wikipedia_realtime.spec"
+  when: '"realtime" in druid_host_services'
+
+- name: Template wikipedia accept all spec
+  template: src="examples/indexing/wikipedia-accept-all.spec" dest="{{druid_dir}}/examples/indexing/wikipedia-accept-all.spec"
+  when: '"kafka-realtime" in druid_host_services'
+
+#- name: Start druid
+#  service: name=druid state=started enabled=yes

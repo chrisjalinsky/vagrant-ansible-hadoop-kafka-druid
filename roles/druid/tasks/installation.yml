@@ -1,0 +1,11 @@
+---
+
+- file: path=/opt/src state=directory
+
+- file: path={{druid_dir}} state=directory
+
+- name: Download druid version.
+  get_url: url={{druid_url}} dest=/opt/src/druid-{{druid_version}}.tar.gz
+
+- name: Unpack tarball.
+  command: tar zxf /opt/src/druid-{{druid_version}}.tar.gz --strip-components=1 chdir={{druid_dir}} creates={{druid_dir}}/lib

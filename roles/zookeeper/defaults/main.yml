@@ -1,0 +1,12 @@
+---
+#zookeeper_version: 3.4.7
+#zookeeper_url: http://mirrors.ocf.berkeley.edu/apache/zookeeper/stable/zookeeper-{{zookeeper_version}}.tar.gz
+zookeeper_version: 3.4.6
+zookeeper_url: http://mirrors.ibiblio.org/apache/zookeeper/zookeeper-{{zookeeper_version}}/zookeeper-{{zookeeper_version}}.tar.gz
+zookeeper_dir: /opt/zookeeper-{{zookeeper_version}}
+zookeeper_data: /var/lib/zookeeper
+zookeeper_logs: /var/log/zookeeper
+
+zookeeper_myid: 1
+zookeeper_servers:
+  - localhost

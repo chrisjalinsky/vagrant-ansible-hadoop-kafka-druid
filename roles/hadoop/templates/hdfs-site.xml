@@ -1,0 +1,18 @@
+<configuration>
+  <property>
+    <name>dfs.replication</name>
+    <value>{{ hadoop_dfs_replication }}</value>
+  </property>
+  {% if hadoop_node_type is defined and hadoop_node_type == "namenode" %}
+  <property>
+    <name>dfs.namenode.name.dir</name>
+    <value>file://{{hadoop_dfs_name_dir}}</value>
+  </property>
+  {% endif %}
+  {% if hadoop_node_type is defined and hadoop_node_type == "datanode" %}
+  <property>
+    <name>dfs.datanode.data.dir</name>
+    <value>file://{{hadoop_dfs_data_dir}}</value>
+  </property>
+  {% endif %}
+</configuration>

@@ -1,0 +1,18 @@
+---
+
+- name: Change ownership on hadoop directory.
+  file: path={{hadoop_dir}} state=directory owner="{{hadoop_user}}" group="{{hadoop_group}}" recurse=yes
+
+- name: Create hadoop conf dir
+  file: path={{hadoop_conf_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Create hadoop log dir
+  file: path={{hadoop_log_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Create hadoop hdfs name dir
+  file: path={{hadoop_dfs_name_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  when: hadoop_node_type == "namenode"
+
+- name: Create hadoop hdfs data dir
+  file: path={{hadoop_dfs_data_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
+  when: hadoop_node_type == "datanode"

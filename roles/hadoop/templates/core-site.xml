@@ -1,0 +1,6 @@
+<configuration>
+    <property>
+        <name>fs.defaultFS</name>
+        <value>hdfs://{{ hadoop_default_fs }}:{{ hadoop_default_fs_port }}</value>
+    </property>
+</configuration>

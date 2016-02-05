@@ -1,0 +1,10 @@
+druid.host={{druid_broker_host}}
+druid.port={{druid_broker_port}}
+druid.service=broker
+
+druid.broker.cache.useCache=true
+druid.broker.cache.populateCache=true
+
+# Bump these up only for faster nested groupBy
+druid.processing.buffer.sizeBytes=100000000
+druid.processing.numThreads=1

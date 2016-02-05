@@ -1,0 +1,7 @@
+---
+
+- include: preparation.yml
+- include: user.yml
+- include: install.yml
+- include: creation.yml
+- include: configure.yml

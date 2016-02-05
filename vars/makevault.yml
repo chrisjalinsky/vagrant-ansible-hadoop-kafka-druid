@@ -1,0 +1,16 @@
+druid_cluster_mysql_root_password: pw
+
+druid_cluster_druid_db_name: druid
+druid_cluster_druid_db_user: druid
+druid_cluster_druid_db_password: druidpw
+
+druid_cluster_mysql_databases:
+  - name: "{{ druid_cluster_druid_db_name }}"
+    encoding: utf8
+    collation: utf8_general_ci
+
+druid_cluster_mysql_users:
+  - name: "{{ druid_cluster_druid_db_user }}"
+    host: "%"
+    password: "{{ druid_cluster_druid_db_password }}"
+    priv: "*.*:ALL"

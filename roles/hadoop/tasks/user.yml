@@ -1,0 +1,26 @@
+---
+
+- name: Create hadoop group
+  group: name="{{hadoop_group}}" system=yes
+
+- name: Create hadoop user
+  user: name="{{hadoop_user}}" group="{{hadoop_group}}" system=yes
+
+- name: Ensure ssh dir present
+  file: dest="{{ hadoop_home }}/.ssh" state=directory mode="0755" owner="{{hadoop_user}}" group="{{hadoop_group}}"
+
+- name: Ensure ssh key present
+  template: src="id_rsa" dest="{{hadoop_home}}/.ssh/id_rsa" owner="{{hadoop_user}}" group="{{hadoop_group}}" mode="0600"
+
+- name: Ensure ssh public key present
+  template: src="id_rsa.pub" dest="{{hadoop_home}}/.ssh/id_rsa.pub" owner="{{hadoop_user}}" group="{{hadoop_group}}" mode="0644"
+
+- name: Ensure ssh authorized key present
+  template: src="id_rsa.pub" dest="{{hadoop_home}}/.ssh/authorized_keys" owner="{{hadoop_user}}" group="{{hadoop_group}}" mode="0600"
+
+- name: Add hadoop user to sudoers
+  lineinfile:
+    line: "{{hadoop_user}} ALL = (root) NOPASSWD:ALL"
+    dest: "/etc/sudoers.d/{{hadoop_user}}"
+    regexp: "^{{hadoop_user}} ALL = (root) NOPASSWD:ALL"
+    create: yes

@@ -1,0 +1,9 @@
+apt_system_packages:
+  - build-essential
+  - python-setuptools
+  - python-pip
+  - git
+  - curl
+  - wget
+  - logrotate
+  - ntp

@@ -1,0 +1,16 @@
+---
+- name: Ensure coordinator config exists if coordinator node
+  template:
+    src: "{{ item.src }}.j2"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: coordinator/runtime.properties
+      dest: "{{ druid_home }}/druid-{{ druid.version }}/config/coordinator/runtime.properties"
+
+- name: "Start coordinator node if druid_mode is set"
+  shell: "java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/coordinator:lib/* io.druid.cli.Main server coordinator"
+  args:
+    chdir: "{{ druid_home }}/druid-{{ druid.version }}"
+  async: 31536000
+  poll: 0
+  register: coordinator_node_started

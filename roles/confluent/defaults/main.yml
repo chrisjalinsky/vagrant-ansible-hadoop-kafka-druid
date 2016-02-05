@@ -1,0 +1,4 @@
+confluent_version: "2.0.0"
+confluent_pkg_url: "http://packages.confluent.io/archive/2.0/confluent-2.0.0-2.11.7.tar.gz"
+confluent_dir: "/opt/confluent-{{confluent_version}}"
+confluent_conf_dir: "{{confluent_dir}}/config"

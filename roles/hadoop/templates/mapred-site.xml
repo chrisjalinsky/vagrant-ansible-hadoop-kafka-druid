@@ -1,0 +1,10 @@
+<configuration>
+    <property>
+        <name>mapreduce.framework.name</name>
+        <value>yarn</value>
+    </property>
+    <property>
+    	<name>mapreduce.job.tracker</name>
+    	<value>{{ hadoop_mapred_jobtracker_address }}:{{ hadoop_mapred_jobtracker_port }}</value>
+    </property>
+</configuration>
