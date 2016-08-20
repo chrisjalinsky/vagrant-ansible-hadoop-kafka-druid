@@ -1,0 +1,13 @@
+---
+
+- hosts: kafka_servers
+  become: yes
+  become_user: root
+  roles:
+    - role: kafka
+      kafka_zk_endpoint: "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181"
+      kafka_brokers:
+        - "kafka0.lan"
+        - "kafka1.lan"
+        - "kafka2.lan"
+      kafka_host_name: "{{ inventory_hostname }}"

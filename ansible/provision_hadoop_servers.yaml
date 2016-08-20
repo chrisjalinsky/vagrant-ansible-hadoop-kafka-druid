@@ -1,0 +1,18 @@
+- hosts: hadoop_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: hadoop
+      hadoop_java_home: "/usr/lib/jvm/java-8-openjdk-amd64"
+      hadoop_node_type: "{{ (inventory_hostname == 'hadoop0.lan') | ternary('namenode','datanode') }}"
+      hadoop_namenode_masters: ["hadoop0.lan"]
+      hadoop_namenode_slaves: ["hadoop1.lan", "hadoop2.lan"]
+      hadoop_dfs_replication: "2"
+      hadoop_default_fs: "hadoop0.lan"
+      hadoop_yarn_resourcemanager_resource_tracker_address: "hadoop0.lan"
+      hadoop_yarn_resourcemanager_scheduler_address: "hadoop0.lan"
+      hadoop_yarn_resourcemanager_address: "hadoop0.lan"
+      hadoop_mapred_jobtracker_address: "hadoop0.lan"

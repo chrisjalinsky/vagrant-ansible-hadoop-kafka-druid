@@ -1,0 +1,26 @@
+---
+
+- hosts: druid_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: druid
+      druid_hadoop_home: "/opt/hadoop-2.7.2"
+      druid_host_services: ["coordinator", "historical", "broker", "kafka-realtime", "realtime", "overlord"]
+      druid_zk_ips: "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181"
+      druid_extensions_coordinates: '["io.druid.extensions:druid-examples","io.druid.extensions:druid-kafka-eight","io.druid.extensions:mysql-metadata-storage","io.druid.extensions:druid-hdfs-storage"]'
+      druid_metadata_storage_type: "mysql"
+      druid_metadata_storage_connector_connectURI: "jdbc:mysql://{{ inventory_hostname }}/druid"
+      druid_metadata_storage_connector_user: "{{ druid_cluster_druid_db_user }}"
+      druid_metadata_storage_connector_password: "{{ druid_cluster_druid_db_password }}"
+      druid_storage_type: "hdfs"
+      druid_storage_storageDirectory: "hdfs://hadoop0.lan:9000/user/druid/segments/"
+      druid_coordinator_host: "{{ inventory_hostname }}"
+      druid_overlord_host: "{{ inventory_hostname }}"
+      druid_broker_host: "{{ inventory_hostname }}"
+      druid_realtime_host: "{{ inventory_hostname }}"
+      druid_historical_host: "{{ inventory_hostname }}"
+      druid_historical_server_maxSize: "500000000000"

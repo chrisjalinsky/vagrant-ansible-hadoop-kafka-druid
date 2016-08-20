@@ -1,0 +1,17 @@
+---
+
+- name: Add Ambari APT Repo
+  apt_repository:
+    repo: "deb http://public-repo-1.hortonworks.com/ambari/ubuntu14/2.x/updates/2.2.1.0 Ambari main"
+
+- name: Add APT Key
+  apt_key:
+    keyserver: "keyserver.ubuntu.com"
+    id: "B9733A7A07513CAD"
+
+- name: Install APT Package
+  apt:
+    name: "ambari-server"
+    update_cache: yes
+    cache_valid_time: "3600"
+    force: yes

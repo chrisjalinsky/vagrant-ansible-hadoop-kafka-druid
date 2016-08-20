@@ -1,0 +1,17 @@
+---
+
+- name: Ensure dirs present
+  file:
+    dest: "{{ item.dest }}"
+    state: directory
+  with_items:
+    - dest: "/opt/src"
+    - dest: "{{hadoop_dir}}"
+
+- name: Download hadoop package
+  get_url:
+    url: "{{hadoop_pkg_url}}"
+    dest: "/opt/src/hadoop-{{hadoop_version}}.tar.gz"
+
+- name: Unpack tarball
+  command: tar zxf /opt/src/hadoop-{{hadoop_version}}.tar.gz --strip-components=1 chdir={{hadoop_dir}} creates={{hadoop_dir}}/bin

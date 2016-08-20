@@ -1,7 +1,0 @@
-[local]
-127.0.0.1 ansible_connection=local
-
-[druid_cluster]
-cd1.lan
-cd2.lan
-cd3.lan

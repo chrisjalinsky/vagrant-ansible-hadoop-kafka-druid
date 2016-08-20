@@ -1,0 +1,14 @@
+---
+
+- hosts: zookeeper_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: zookeeper
+      zookeeper_servers:
+        - "zookeeper0.lan"
+        - "zookeeper1.lan"
+        - "zookeeper2.lan"

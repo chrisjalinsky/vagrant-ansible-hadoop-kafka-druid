@@ -3,17 +3,24 @@ Zookeeper
 
 To test who is the Quorum leader...this should not return standalone, if it does you must restart each node quickly:
 ```
-echo srvr | nc cd1.lan 2181 | grep Mode
+echo srvr | nc zookeeper0.lan 2181 | grep Mode
 ```
 
 Also you can run to find out if the node is running smoothly:
 ```
-echo ruok | nc cd3.lan 2181
+echo ruok | nc zookeeper0.lan 2181
 ```
 
 Hadoop
 ======
 
+
+NOTE: I fought missing jars getting the following format command to work
+```
+cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4j-api-1.7.10.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
+cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4j-log4j12-1.7.10.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
+cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/commons-configuration-1.6.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
+```
 format HDFS by changing user and running the commands (On the master namenode):
 ```
 sudo su - hadoop

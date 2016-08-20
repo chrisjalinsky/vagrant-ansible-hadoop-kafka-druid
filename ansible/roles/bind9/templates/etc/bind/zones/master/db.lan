@@ -1,0 +1,29 @@
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     {{ ansible_fqdn }}. admin.{{ ansible_fqdn }}. (
+                              {{ bind9_serial }}         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+; name servers - NS records
+                 IN    NS   core1.lan.
+
+core1.lan.       IN    A    172.16.8.2
+
+zookeeper0.lan.       IN    A    172.16.8.10
+zookeeper1.lan.       IN    A    172.16.8.11
+zookeeper2.lan.       IN    A    172.16.8.12
+
+kafka0.lan.           IN    A    172.16.8.20
+kafka1.lan.           IN    A    172.16.8.21
+kafka2.lan.           IN    A    172.16.8.22
+
+hadoop0.lan.          IN    A    172.16.8.30
+hadoop1.lan.          IN    A    172.16.8.31
+hadoop2.lan.          IN    A    172.16.8.32
+
+druid0.lan.           IN    A    172.16.8.40

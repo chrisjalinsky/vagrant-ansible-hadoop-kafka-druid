@@ -1,0 +1,22 @@
+[local]
+127.0.0.1 ansible_connection=local
+
+[druid_cluster]
+cd[1:3].lan
+
+[zookeeper_servers]
+cd[1:3].lan
+
+[hadoop_servers]
+cd[1:3].lan
+
+[hadoop_namenode_servers]
+cd1.lan
+
+[hadoop_datanode_servers]
+cd[2:3].lan
+
+[all:children]
+druid_cluster
+zookeeper_servers
+hadoop_servers

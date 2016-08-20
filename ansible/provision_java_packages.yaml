@@ -1,0 +1,8 @@
+---
+
+- hosts: zookeeper_servers,kafka_servers,hadoop_servers,druid_servers
+  become: yes
+  gather_facts: yes
+  roles:
+    - openjdk-8
+    - maven3

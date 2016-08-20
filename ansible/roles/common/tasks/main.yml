@@ -1,0 +1,23 @@
+---
+
+- name: Update apt cache
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Apt install required system packages.
+  apt: pkg={{item}} state=installed
+  with_items:
+    - build-essential
+    - python-setuptools
+    - python-pip
+    - git
+    - curl
+    - wget
+    - logrotate
+    - ntp
+
+- name: Configure ntp servers
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  notify: Restart ntp
+  tags:
+    - ntp
+    - config

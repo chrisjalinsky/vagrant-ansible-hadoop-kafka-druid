@@ -1,9 +1,0 @@
-- file: path=/opt/src state=directory
-
-- file: path={{hadoop_dir}} state=directory
-
-- name: Download hadoop package
-  get_url: url={{hadoop_pkg_url}} dest=/opt/src/hadoop-{{hadoop_version}}.tar.gz
-
-- name: Unpack tarball
-  command: tar zxf /opt/src/hadoop-{{hadoop_version}}.tar.gz --strip-components=1 chdir={{hadoop_dir}} creates={{hadoop_dir}}/bin
