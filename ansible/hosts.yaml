@@ -34,22 +34,16 @@ _meta:
       vagrant_mem: "1024"
     zookeeper0.lan:
       vagrant_ip: "172.16.8.10"
-      vagrant_mem: "1024"
     zookeeper1.lan:
       vagrant_ip: "172.16.8.11"
-      vagrant_mem: "1024"
     zookeeper2.lan:
       vagrant_ip: "172.16.8.12"
-      vagrant_mem: "1024"
     kafka0.lan:
       vagrant_ip: "172.16.8.20"
-      vagrant_mem: "1024"
     kafka1.lan:
       vagrant_ip: "172.16.8.21"
-      vagrant_mem: "1024"
     kafka2.lan:
       vagrant_ip: "172.16.8.22"
-      vagrant_mem: "1024"
     hadoop0.lan:
       vagrant_ip: "172.16.8.30"
     hadoop1.lan:
