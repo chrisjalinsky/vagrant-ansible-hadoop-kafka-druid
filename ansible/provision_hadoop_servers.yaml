@@ -16,3 +16,8 @@
       hadoop_yarn_resourcemanager_scheduler_address: "hadoop0.lan"
       hadoop_yarn_resourcemanager_address: "hadoop0.lan"
       hadoop_mapred_jobtracker_address: "hadoop0.lan"
+      hadoop_dfs_rpc_bind_host: "0.0.0.0"
+      hadoop_dfs_svc_rpc_bind_host: "0.0.0.0"
+      hadoop_dfs_namenode_http_bind_host: "0.0.0.0"
+      hadoop_dfs_namenode_https_bind_host: "0.0.0.0"
+      hadoop_dfs_datanode_iface: "eth1"

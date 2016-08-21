@@ -20,7 +20,7 @@
 
 - name: Add hadoop user to sudoers
   lineinfile:
-    line: "{{hadoop_user}} ALL = (root) NOPASSWD:ALL"
+    line: "{{hadoop_user}} ALL = (ALL) NOPASSWD:ALL"
     dest: "/etc/sudoers.d/{{hadoop_user}}"
-    regexp: "^{{hadoop_user}} ALL = (root) NOPASSWD:ALL"
+    regexp: "^{{hadoop_user}}\\s+ALL.*"
     create: yes

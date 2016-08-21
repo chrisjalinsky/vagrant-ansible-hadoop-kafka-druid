@@ -22,6 +22,11 @@ hadoop_java_home: "/usr/bin/java"
 hadoop_dfs_replication: "1"
 hadoop_dfs_name_dir: "/mnt/dfs/name"
 hadoop_dfs_data_dir: "/mnt/dfs/data"
+hadoop_dfs_datanode_iface: "eth1"
+hadoop_dfs_rpc_bind_host: "0.0.0.0"
+hadoop_dfs_svc_rpc_bind_host: "0.0.0.0"
+hadoop_dfs_namenode_http_bind_host: "0.0.0.0"
+hadoop_dfs_namenode_https_bind_host: "0.0.0.0"
 
 # core-site.xml
 hadoop_default_fs: "localhost"
@@ -34,7 +39,7 @@ hadoop_yarn_resourcemanager_scheduler_address: "localhost"
 hadoop_yarn_resourcemanager_scheduler_port: "8035"
 hadoop_yarn_resourcemanager_address: "localhost"
 hadoop_yarn_resourcemanager_port: "8050"
-
+hadoop_yarn_bind_host: "0.0.0.0"
 # mapred-site.xml
 hadoop_mapred_jobtracker_address: "localhost"
 hadoop_mapred_jobtracker_port: "5431"

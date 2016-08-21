@@ -14,8 +14,17 @@ echo ruok | nc zookeeper0.lan 2181
 Hadoop
 ======
 
+###IMPORTANT:
+Host resolution in Hadoop clustering is critical. This repo uses a bind9 server to resolve hostnames, forward and reverse records. While writing to the /etc/hosts file is a simple solution, this probably gets messy. I have a hybrid solution here.
+On each host, if you only write it's own entry, and use DNS for other hostname resolution, it works. For instance:
+hadoop0.lan's /etc/hosts file:
+```
+127.0.0.1 localhost
+172.16.8.30 hadoop0.lan hadoop0
+```
 
-NOTE: I fought missing jars getting the following format command to work
+
+####Additional note: I fought missing jars getting the following ```hdfs namenode -format``` command to work
 ```
 cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4j-api-1.7.10.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
 cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4j-log4j12-1.7.10.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
@@ -43,6 +52,7 @@ Start Mapreduce v2 Daemon:
 To verify daemons on each host, as the hadoop user:
 ===================================================
 
+This will display the different daemons running on the host where the command was issued.
 ```
 jps
 ```
@@ -50,19 +60,53 @@ jps
 To verify the cluster:
 ======================
 
-Navigate to the masternode: http://cd1.lan:8088/cluster/nodes
+Navigate to the Name node Web UI: 
+```
+http://hadoop0.lan:8088/cluster/nodes
+```
+
+Additionally, navigate to Hadoop UI:
+```
+http://hadoop0.lan:50070
+```
+You should see all cluster nodes with storage capacity stats. If not, you may have a networking issue/DNS resolution issue.
+
+Troubleshoot this by checking connection availability with the telnet and netstat tool.
+Netstat will show you interface bindings. All of these should be bound to 0.0.0.0 all interfaces, and ipv6 should be disabled.
+```
+netstat -ntple
+```
+
+Begin trying to connect to services:
+```
+telnet <server> <port>
+telnet hadoop0.lan 9000
+```
+
+If you get connection refused errors, check the processes and logs. Below is an example of the namenode log:
+```
+cat /opt/hadoop-2.7.2/logs/hadoop-hadoop-namenode-hadoop0.lan.log
+```
 
 Run a mapreduce job:
 =====================
 
+Use Map Reduse v2:
+```
 hadoop jar /opt/hadoop-2.7.2/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar pi 30 100
+```
+
+Use yarn:
+```
 yarn jar /opt/hadoop-2.7.2/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar pi 30 100
+```
 
 Verify the mapreduce job:
 =========================
 
-http://cd1.lan:8088/cluster/apps
+http://hadoop0.lan:8088/cluster/apps
 
+##Druid
 
 Create a hdfs directory for druid deep storage:
 ===============================================

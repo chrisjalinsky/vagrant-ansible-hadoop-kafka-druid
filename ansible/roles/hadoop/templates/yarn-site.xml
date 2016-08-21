@@ -15,4 +15,12 @@
     	<name>yarn.resourcemanager.address</name>
     	<value>{{ hadoop_yarn_resourcemanager_address }}:{{ hadoop_yarn_resourcemanager_port }}</value>
     </property>
+    <property>
+        <name>yarn.resourcemanager.bind-host</name>
+        <value>{{ hadoop_yarn_bind_host }}</value>
+    </property>
+    <property>
+        <name>yarn.resourcemanager.hostnames</name>
+        <value>0.0.0.0</value>
+    </property>
 </configuration>

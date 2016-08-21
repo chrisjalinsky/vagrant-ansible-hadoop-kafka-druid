@@ -10,6 +10,7 @@
 #  template: src="sysctl.conf" dest="/etc/sysctl.conf" backup=yes
 
 - name: Ensure ipv6 disabled in /etc/sysctl.conf
+  register: disabled_ipv6
   lineinfile:
     line: "{{ item.line }}"
     regexp: "{{ item.regexp }}"
@@ -17,7 +18,19 @@
   with_items:
     - line: "net.ipv6.conf.all.disable_ipv6 = 1"
       regexp: "^net\\.ipv6\\.conf\\.all\\.disable_ipv6.*"
-    - line: "net.ipv6.conf.default.disable_ipv6"
+    - line: "net.ipv6.conf.default.disable_ipv6 = 1"
       regexp: "^net\\.ipv6\\.conf\\.default\\.disable_ipv6.*"
-    - line: "net.ipv6.conf.lo.disable_ipv6"
+    - line: "net.ipv6.conf.lo.disable_ipv6 = 1"
       regexp: "^net\\.ipv6\\.conf\\.lo\\.disable_ipv6.*"
+
+- name: Reload sysctl when specified
+  when: disabled_ipv6|changed
+  shell: /sbin/sysctl -p
+  args:
+    executable: "/bin/bash"
+
+- name: Ensure /etc/hosts file entry for localhost doesnt contain hostname
+  lineinfile:
+    line: "127.0.0.1 localhost"
+    regexp: "^127\\.0\\.0\\.1.*"
+    dest: "/etc/hosts"

@@ -1,0 +1,13 @@
+---
+- name: Ensure Python related packages installed
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+
+    - name: Apt install required system packages.
+      apt: name={{item}} update_cache=yes cache_valid_time=3600
+      with_items:
+        - build-essential
+        - python-setuptools
+        - python-pip

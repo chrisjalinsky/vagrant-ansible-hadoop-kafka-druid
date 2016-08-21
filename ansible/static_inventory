@@ -1,22 +1,30 @@
 [local]
 127.0.0.1 ansible_connection=local
 
-[druid_cluster]
-cd[1:3].lan
+[core_servers]
+core0.lan
+
+[druid_servers]
+druid0.lan
+
+[kafka_servers]
+kafka[0:2].lan
 
 [zookeeper_servers]
-cd[1:3].lan
+zookeper[0:2].lan
 
 [hadoop_servers]
-cd[1:3].lan
+hadoop[0:2].lan
 
 [hadoop_namenode_servers]
-cd1.lan
+hadoop0.lan
 
 [hadoop_datanode_servers]
-cd[2:3].lan
+hadoop[1:2].lan
 
 [all:children]
 druid_cluster
 zookeeper_servers
 hadoop_servers
+kafka_servers
+core_servers
