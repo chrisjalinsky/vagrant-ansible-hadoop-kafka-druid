@@ -1,3 +1,20 @@
+##Hadoop, Kafka, Druid Data Ingestion Lab
+The purpose of this lab is to test data ingestion with a variety of open source tools. We will focus on these:
+
+* Zookeeper Ensemble
+* Hadoop HDFS and Map Reduce Cluster
+* Kafka cluster
+* Druid ingestion
+
+We will build a network of Virtualbox VMs with Vagrant and Ansible, to imitate bare metal infrastructure.
+
+Default hosts created for the lab:
+* core1.lan - bind9 DNS server
+* hadoop[0-2].lan - Hadoop cluster
+* zookeeper[0:2].lan - Zookeeper ensemble
+* kafka[0:2].lan - Kafka cluster
+* druid0.lan - Druid.io Database for data ingestion
+
 Zookeeper
 =========
 
@@ -14,7 +31,7 @@ echo ruok | nc zookeeper0.lan 2181
 Hadoop
 ======
 
-###IMPORTANT:
+###IMPORTANT
 Host resolution in Hadoop clustering is critical. This repo uses a bind9 server to resolve hostnames, forward and reverse records. While writing to the /etc/hosts file is a simple solution, this probably gets messy. I have a hybrid solution here.
 On each host, if you only write it's own entry, and use DNS for other hostname resolution, it works. For instance:
 hadoop0.lan's /etc/hosts file:
@@ -30,35 +47,32 @@ cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4
 cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/slf4j-log4j12-1.7.10.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
 cp /opt/hadoop-2.7.2/share/hadoop/httpfs/tomcat/webapps/webhdfs/WEB-INF/lib/commons-configuration-1.6.jar /opt/hadoop-2.7.2/share/hadoop/common/lib/
 ```
-format HDFS by changing user and running the commands (On the master namenode):
+###format HDFS by changing user and running the commands (On the master namenode):
 ```
 sudo su - hadoop
 hdfs namenode -format
 ```
 
-Start Namenode:
+###Start Namenode:
 
 ```
 /opt/hadoop-2.7.2/sbin/start-dfs.sh
 ```
 
-Start Mapreduce v2 Daemon:
-==========================
+###Start Mapreduce v2 Daemon:
 
 ```
 /opt/hadoop-2.7.2/sbin/start-yarn.sh
 ```
 
-To verify daemons on each host, as the hadoop user:
-===================================================
+####To verify daemons on each host, as the hadoop user:
 
 This will display the different daemons running on the host where the command was issued.
 ```
 jps
 ```
 
-To verify the cluster:
-======================
+####To verify the cluster:
 
 Navigate to the Name node Web UI: 
 ```
@@ -72,9 +86,27 @@ http://hadoop0.lan:50070
 You should see all cluster nodes with storage capacity stats. If not, you may have a networking issue/DNS resolution issue.
 
 Troubleshoot this by checking connection availability with the telnet and netstat tool.
-Netstat will show you interface bindings. All of these should be bound to 0.0.0.0 all interfaces, and ipv6 should be disabled.
+Netstat will show you interface/process bindings. All of these should be bound to 0.0.0.0 or all interfaces
+Additionally, ipv6 should be disabled
 ```
 netstat -ntple
+
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       User       Inode       PID/Program name
+tcp        0      0 0.0.0.0:111             0.0.0.0:*               LISTEN      0          7784        -               
+tcp        0      0 0.0.0.0:8050            0.0.0.0:*               LISTEN      999        47462       19258/java      
+tcp        0      0 0.0.0.0:50070           0.0.0.0:*               LISTEN      999        45671       18871/java      
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      0          28282       -               
+tcp        0      0 0.0.0.0:8088            0.0.0.0:*               LISTEN      999        47466       19258/java      
+tcp        0      0 0.0.0.0:8025            0.0.0.0:*               LISTEN      999        47448       19258/java      
+tcp        0      0 0.0.0.0:8033            0.0.0.0:*               LISTEN      999        47472       19258/java      
+tcp        0      0 0.0.0.0:8035            0.0.0.0:*               LISTEN      999        47456       19258/java      
+tcp        0      0 0.0.0.0:32901           0.0.0.0:*               LISTEN      107        7854        -               
+tcp        0      0 0.0.0.0:9000            0.0.0.0:*               LISTEN      999        45679       18871/java      
+tcp        0      0 0.0.0.0:50090           0.0.0.0:*               LISTEN      999        46676       19108/java      
+tcp6       0      0 :::111                  :::*                    LISTEN      0          7787        -               
+tcp6       0      0 :::22                   :::*                    LISTEN      0          28284       -               
+tcp6       0      0 :::34334                :::*                    LISTEN      107        7860        -  
+
 ```
 
 Begin trying to connect to services:
@@ -88,21 +120,19 @@ If you get connection refused errors, check the processes and logs. Below is an 
 cat /opt/hadoop-2.7.2/logs/hadoop-hadoop-namenode-hadoop0.lan.log
 ```
 
-Run a mapreduce job:
-=====================
+###Test by running jobs:
 
-Use Map Reduse v2:
+####Use Map Reduce v2:
 ```
 hadoop jar /opt/hadoop-2.7.2/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar pi 30 100
 ```
 
-Use yarn:
+####Use YARN:
 ```
 yarn jar /opt/hadoop-2.7.2/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar pi 30 100
 ```
 
-Verify the mapreduce job:
-=========================
+####Verify the mapreduce job:
 
 http://hadoop0.lan:8088/cluster/apps
 
@@ -129,7 +159,7 @@ Starting a coordinator node as druid (See below for upstart scripts):
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/coordinator:lib/* io.druid.cli.Main server coordinator
 ```
 
-On cd2.lan, had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
+Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
 ```
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/coordinator:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar io.druid.cli.Main server coordinator
 ```
@@ -140,7 +170,7 @@ Starting a historical node as druid:
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/historical:lib/* io.druid.cli.Main server historical
 ```
 
-On cd2.lan, had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
+Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
 ```
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/historical:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar io.druid.cli.Main server historical
 ```
@@ -150,7 +180,8 @@ Starting a broker node as druid:
 ```
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/broker:lib/* io.druid.cli.Main server broker
 ```
-On cd2.lan, had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
+
+Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
 ```
 java -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -classpath config/_common:config/broker:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar io.druid.cli.Main server broker
 ```
@@ -159,7 +190,8 @@ Starting realtime node as druid:
 ```
 java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec -classpath config/_common:config/realtime:lib/* io.druid.cli.Main server realtime
 ```
-On cd2.lan, had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
+
+Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
 ```
 java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec -classpath config/_common:config/realtime:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar io.druid.cli.Main server realtime
 ```
@@ -167,12 +199,12 @@ java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFil
 Upstart Files:
 ==============
 
-start druid-coordinator
-start druid-historical
-start druid-broker
-start druid-realtime
-start druid-kafka-realtime
-start druid-overlord
+* ```start|stop|restart druid-coordinator```
+* ```start|stop|restart druid-historical```
+* ```start|stop|restart druid-broker```
+* ```start|stop|restart druid-realtime```
+* ```start|stop|restart druid-kafka-realtime```
+* ```start|stop|restart druid-overlord```
 
 runtime logs at /var/log/upstart/*
 
@@ -182,7 +214,7 @@ Cluster Batch Data Loading
 
 (Druid Documentation)[http://druid.io/docs/latest/tutorials/tutorial-loading-batch-data.html]
 
-In my experience to get around the capacity errors, you need 2 historical nodes (perhaps cd1.lan, cd2.lan).
+In my experience to get around the capacity errors, you need 2 historical nodes.
 ```
 start druid-overlord
 start druid-coordinator 
@@ -202,14 +234,14 @@ Task:
 =====
 ```
 curl -X 'POST' -H 'Content-Type:application/json' -d @examples/indexing/wikipedia_index_task.json <overlord>:8090/druid/indexer/v1/task
-curl -X 'POST' -H 'Content-Type:application/json' -d @examples/indexing/wikipedia_index_task.json cd1.lan:8090/druid/indexer/v1/task
+curl -X 'POST' -H 'Content-Type:application/json' -d @examples/indexing/wikipedia_index_task.json druid0.lan:8090/druid/indexer/v1/task
 ```
 
 Coordinator console:
-http://cd1.lan:8090/console.html
+http://druid0.lan:8090/console.html
 
 Druid Console:
-http://cd1.lan:8081
+http://druid0.lan:8081
 
 HDFS Segment:
 /user/druid/segments/wikipedia/20130831T000000.000Z_20130901T000000.000Z/2016-01-17T03_23_16.720Z/0
@@ -252,7 +284,7 @@ java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8         \
      io.druid.cli.Main server realtime
 ```
 
-On cd2.lan, had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
+Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
 
 ```
 java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/indexing/wikipedia.spec -classpath "config/_common:config/realtime:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar" io.druid.cli.Main server realtime
@@ -274,8 +306,3 @@ curl -XPOST -H'Content-type: application/json' \
   "http://cd1.lan:8084/druid/v2/?pretty" \
   -d'{"queryType":"timeBoundary","dataSource":"wikipedia"}'
 ```
-
-Druid Dumbo Ruby Library (worth checking out)
-========================
-
-Reorganizes segments in HDFS

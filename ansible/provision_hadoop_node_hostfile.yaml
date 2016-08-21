@@ -1,0 +1,29 @@
+---
+
+- name: Ensure hostfile is correct
+  hosts: hadoop_servers
+  become: yes
+  become_user: root
+  tasks:
+    - name: Set host ip and hostname facts
+      set_fact:
+        hadoop_host_ip: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+        hadoop_hostname: "{{ inventory_hostname }}"
+
+    - name: Set host ip regex fact
+      set_fact:
+        hadoop_ip_addr_regex: "{{ hadoop_host_ip | regex_replace('\\.', '\\\\.') }}"
+
+    - name: Debug facts
+      debug:
+        var: "{{ item }}"
+      with_items:
+        - hadoop_ip_addr_regex
+        - hadoop_hostname
+        - hadoop_host_ip
+
+    - name: Ensure lineinfile
+      lineinfile:
+        line: "{{ hadoop_host_ip }} {{ hadoop_hostname }}"
+        regexp: "^{{ hadoop_ip_addr_regex }}.*"
+        dest: "/etc/hosts"
