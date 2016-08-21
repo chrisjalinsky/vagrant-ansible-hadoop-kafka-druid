@@ -1,7 +1,7 @@
 ---
 - name: Check installed
   stat: 
-    path: "{{ druid_home }}/druid-{{ druid.version }}/config"
+    path: "{{ druid_home }}/druid-{{ druid.version }}/conf"
   register: check_installation
 
 - name: Ensure druid.download.dest exists
@@ -18,6 +18,18 @@
     url: "http://static.druid.io/artifacts/releases/druid-{{ druid.version }}-bin.tar.gz"
     dest: "{{ druid.download.dest }}"
   when: check_installation.stat.islnk is not defined
+
+- name: Download mySQL extension
+  get_url:
+    url: "http://static.druid.io/artifacts/releases/mysql-metadata-storage-{{ druid.version }}.tar.gz"
+    dest: "{{ druid_home }}/"
+
+- name: Unarchive druid extension
+  unarchive:
+    src: "{{ druid_home }}/mysql-metadata-storage-{{ druid.version }}.tar.gz"
+    dest: "{{ druid_home }}/mysql-metadata-storage-{{ druid.version }}"
+    copy: no
+    remote_src: yes
 
 - name: Ensure druid tar unarchived to druid_home
   unarchive:

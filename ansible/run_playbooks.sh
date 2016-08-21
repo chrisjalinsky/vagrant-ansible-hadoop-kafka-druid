@@ -26,6 +26,6 @@ run_playbook provision_hadoop_node_hostfile.yaml inventory.py install.out
 run_playbook provision_hadoop_servers.yaml inventory.py install.out
 run_playbook provision_kafka_servers.yaml inventory.py install.out
 run_playbook provision_mysql_servers.yaml inventory.py install.out
-run_playbook provision_druid_servers.yaml inventory.py install.out
+#run_playbook provision_druid_servers.yaml inventory.py install.out
 
 echo "Ending Installation at $(date)."

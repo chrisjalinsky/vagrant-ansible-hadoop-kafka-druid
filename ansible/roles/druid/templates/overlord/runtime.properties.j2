@@ -1,22 +1,30 @@
-# Default host: localhost. Default port: 8090. If you run each node type on its own node in production, you should override these values to be IP:8080
-druid.host={{druid_overlord_host}}
-druid.port={{druid_overlord_port}}
-druid.service={{druid_overlord_service}}
+## Default host: localhost. Default port: 8090. If you run each node type on its own node in production, you should override these values to be IP:8080
+#druid.host={{druid_overlord_host}}
+#druid.port={{druid_overlord_port}}
+#druid.service={{druid_overlord_service}}
 
-# Run the overlord in local mode with a single peon to execute tasks
-# This is not recommended for production.
-druid.indexer.queue.startDelay={{druid_overlord_indexer_queue_startDelay}}
+## Run the overlord in local mode with a single peon to execute tasks
+## This is not recommended for production.
+#druid.indexer.queue.startDelay={{druid_overlord_indexer_queue_startDelay}}
 
 # This setting is too small for real production workloads
-druid.indexer.runner.javaOpts={{druid_overlord_indexer_runner_javaOpts}}
+#druid.indexer.runner.javaOpts={{druid_overlord_indexer_runner_javaOpts}}
 
 # These settings are also too small for real production workloads
 # Please see our recommended production settings in the docs (http://druid.io/docs/latest/Production-Cluster-Configuration.html)
-druid.indexer.fork.property.druid.processing.numThreads={{druid_overlord_indexer_fork_property_druid_processing_numThreads}}
-druid.indexer.fork.property.druid.computation.buffer.size={{druid_overlord_indexer_fork_property_druid_computation_buffer_size}}
+#druid.indexer.fork.property.druid.processing.numThreads={{druid_overlord_indexer_fork_property_druid_processing_numThreads}}
+#druid.indexer.fork.property.druid.computation.buffer.size={{druid_overlord_indexer_fork_property_druid_computation_buffer_size}}
 
 # Uncomment following property if you are running Middle Manager
 # druid.indexer.runner.type=remote
-{% if druid_overlord_indexer_runner_type is defined and druid_overlord_indexer_runner_type != "" %}
-druid.indexer.runner.type={{druid_overlord_indexer_runner_type}}
-{% endif %}
+#{% if druid_overlord_indexer_runner_type is defined and druid_overlord_indexer_runner_type != "" %}
+#druid.indexer.runner.type={{druid_overlord_indexer_runner_type}}
+#{% endif %}
+
+druid.service=druid/overlord
+druid.port=8090
+
+druid.indexer.queue.startDelay=PT30S
+
+druid.indexer.runner.type=remote
+druid.indexer.storage.type=metadata

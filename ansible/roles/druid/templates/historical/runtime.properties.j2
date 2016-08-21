@@ -1,11 +1,25 @@
-druid.host={{druid_historical_host}}
-druid.port={{druid_historical_port}}
-druid.service={{druid_historical_service}}
+#druid.host={{druid_historical_host}}
+#druid.port={{druid_historical_port}}
+#druid.service={{druid_historical_service}}
 
-# We can only 1 scan segment in parallel with these configs.
-# Our intermediate buffer is also very small so longer topNs will be slow.
-druid.processing.buffer.sizeBytes={{druid_historical_processing_buffer_sizeBytes}}
-druid.processing.numThreads={{druid_historical_processing_numThreads}}
+## We can only 1 scan segment in parallel with these configs.
+## Our intermediate buffer is also very small so longer topNs will be slow.
+#druid.processing.buffer.sizeBytes={{druid_historical_processing_buffer_sizeBytes}}
+#druid.processing.numThreads={{druid_historical_processing_numThreads}}
 
-druid.segmentCache.locations=[{"path": "/tmp/druid/indexCache", "maxSize"\: "{{druid_historical_server_maxSize}}" }]
-druid.server.maxSize={{druid_historical_server_maxSize}}
+#druid.segmentCache.locations=[{"path": "/tmp/druid/indexCache", "maxSize"\: "{{druid_historical_server_maxSize}}" }]
+#druid.server.maxSize={{druid_historical_server_maxSize}}
+
+druid.service=druid/historical
+druid.port=8083
+
+# HTTP server threads
+druid.server.http.numThreads=8
+
+# Processing threads and buffers
+druid.processing.buffer.sizeBytes=256000000
+druid.processing.numThreads=2
+
+# Segment storage
+druid.segmentCache.locations=[{"path":"var/druid/segment-cache","maxSize"\:300000000000}]
+druid.server.maxSize=300000000000

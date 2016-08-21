@@ -27,3 +27,5 @@ $TTL    604800
 32.8  IN   PTR   hadoop2.lan.
 
 40.8  IN   PTR   druid0.lan.
+41.8  IN   PTR   druid1.lan.
+42.8  IN   PTR   druid2.lan.

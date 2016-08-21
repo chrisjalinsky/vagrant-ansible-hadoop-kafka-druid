@@ -27,3 +27,5 @@ hadoop1.lan.          IN    A    172.16.8.31
 hadoop2.lan.          IN    A    172.16.8.32
 
 druid0.lan.           IN    A    172.16.8.40
+druid1.lan.	      IN    A    172.16.8.41
+druid2.lan.           IN    A    172.16.8.42

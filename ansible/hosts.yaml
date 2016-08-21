@@ -52,3 +52,9 @@ _meta:
       vagrant_ip: "172.16.8.32"
     druid0.lan:
       vagrant_ip: "172.16.8.40"
+      vagrant_mem: "8096"
+      vagrant_cpu: "2"
+    druid1.lan:
+      vagrant_ip: "172.16.8.41"
+    druid2.lan:
+      vagrant_ip: "172.16.8.42"

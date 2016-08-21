@@ -1,41 +1,55 @@
 #
-# Druid - a distributed column store.
-# Copyright 2012 - 2015 Metamarkets Group Inc.
+# Licensed to Metamarkets Group Inc. (Metamarkets) under one
+# or more contributor license agreements. See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership. Metamarkets licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License. You may obtain a copy of the License at
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations
+# under the License.
 #
 
-# Request logging, monitoring, and metrics
-{% if druid_request_logging_type is defined and druid_request_logging_type != "" %}
-druid.request.logging.type={{druid_request_logging_type}}
-druid.request.logging.feed={{druid_request_logging_feed}}
-druid.request.logging.dir={{druid_request_logging_dir}}
+#
+# Extensions
+#
+
+# This is not the full list of Druid extensions, but common ones that people often use. You may need to change this list
+# based on your particular setup.
+druid.extensions.loadList={{ druid_extensions_loadlist | to_json }}
+
+# If you have a different version of Hadoop, place your Hadoop client jar files in your hadoop-dependencies directory
+# and uncomment the line below to point to your directory.
+#druid.extensions.hadoopDependenciesDir=/my/dir/hadoop-dependencies
+
+{% if druid_extensions_hadoopdependenciesdir != "" %}
+druid.extensions.hadoopDependenciesDir={{ druid_extensions_hadoopdependenciesdir }}
 {% endif %}
 
-# Extensions (no deep storage model is listed - using local fs for deep storage - not recommended for production)
-# Also, for production to use mysql add, "io.druid.extensions:mysql-metadata-storage"
-druid.extensions.coordinates={{druid_extensions_coordinates}}
-druid.extensions.localRepository=extensions-repo
+#
+# Logging
+#
 
+# Log all runtime properties on startup. Disable to avoid logging properties on startup:
+druid.startup.logging.logProperties={{ druid_startup_logging_logproperties }}
+
+#
 # Zookeeper
-druid.zk.service.host={{druid_zk_ips}}
+#
 
-# Metadata Storage (use something like mysql in production by uncommenting properties below)
-# by default druid will use derby
-# druid.metadata.storage.type=mysql
-# druid.metadata.storage.connector.connectURI=jdbc:mysql://localhost:3306/druid
-# druid.metadata.storage.connector.user=druid
-# druid.metadata.storage.connector.password=diurd
+druid.zk.service.host={{druid_zk_ips}}
+druid.zk.paths.base={{ druid_zk_paths_base }}
+
+#
+# Metadata storage
+#
 
 {% if druid_metadata_storage_type is defined and druid_metadata_storage_type != "" %}
 druid.metadata.storage.type={{druid_metadata_storage_type}}
@@ -43,6 +57,10 @@ druid.metadata.storage.connector.connectURI={{druid_metadata_storage_connector_c
 druid.metadata.storage.connector.user={{druid_metadata_storage_connector_user}}
 druid.metadata.storage.connector.password={{druid_metadata_storage_connector_password}}
 {% endif %}
+
+#
+# Deep storage
+#
 
 # Deep storage (local filesystem for examples - don't use this in production)
 {% if druid_storage_type is defined and druid_storage_type != "local" %}
@@ -53,15 +71,29 @@ druid.storage.type=local
 druid.storage.storageDirectory=/tmp/druid/localStorage
 {% endif %}
 
-# Query Cache (we use a simple 10mb heap-based local cache on the broker)
-druid.cache.type=local
-druid.cache.sizeInBytes=10000000
+#
+# Indexing service logs
+#
 
-# Indexing service discovery
-druid.selectors.indexing.serviceName=overlord
+{% if druid_indexer_logs_type is defined and druid_indexer_logs_type != "" %}
+druid.indexer.logs.type={{ druid_indexer_logs_type }}
+druid.indexer.logs.directory={{ druid_indexer_logs_directory }}
+{% else %}
+druid.indexer.logs.type=file
+druid.indexer.logs.directory=var/druid/indexing-logs
+{% endif %}
 
-# Monitoring (disabled for examples, if you enable SysMonitor, make sure to include sigar jar in your cp)
-# druid.monitoring.monitors=["com.metamx.metrics.SysMonitor","com.metamx.metrics.JvmMonitor"]
+#
+# Service discovery
+#
 
-# Metrics logging (disabled for examples - change this to logging or http in production)
-druid.emitter=noop
+druid.selectors.indexing.serviceName={{ druid_selectors_indexing_service_name }}
+druid.selectors.coordinator.serviceName={{ druid_selectors_coordinator_service_name }}
+
+#
+# Monitoring
+#
+
+druid.monitoring.monitors={{ druid_monitoring_monitors_list|to_json }}
+druid.emitter={{ druid_emitter }}
+druid.emitter.logging.logLevel={{ druid_emitter_logging_loglevel }}

@@ -1,6 +1,6 @@
 ---
 
-druid_version: 0.8.2
+druid_version: "0.9.1.1"
 druid_url: http://static.druid.io/artifacts/releases/druid-{{ druid_version }}-bin.tar.gz
 druid_dir: /opt/druid-{{druid_version}}
 druid_conf_dir: "{{ druid_dir}}/config"
@@ -17,96 +17,54 @@ druid_host_services: []
 # ["coordinator", "historical", "broker", "realtime", "kafka-realtime"]
 
 # common.runtime.properties
+druid_startup_logging_logproperties: "true"
+druid_extensions_hadoopdependenciesdir: ""
 druid_zk_ips: "localhost"
+druid_zk_paths_base: "/druid"
 
-# common.runtime.properties - requests logging
-druid_request_logging_type: "file"
-druid_request_logging_feed: "druid_requests"
-druid_request_logging_dir: "{{ druid_logs }}"
+# common.runtime.properties
 
-# default extension
-druid_extensions_coordinates: '["io.druid.extensions:druid-examples","io.druid.extensions:druid-kafka-eight"]'
+# default extensions
+druid_extensions_loadlist: ["druid-hdfs-storage", "druid-kafka-eight", "druid-s3-extensions", "druid-histogram", "druid-datasketches", "druid-lookups-cached-global", "mysql-metadata-storage"]
 
-# Override for mysql
-#druid_extensions_coordinates: '["io.druid.extensions:druid-examples","io.druid.extensions:druid-kafka-eight","io.druid.extensions:mysql-metadata-storage"]'
-#druid_metadata_storage_type: "mysql"
-#druid_metadata_storage_connector_connectURI: "jdbc:mysql://localhost/druid"
-#druid_metadata_storage_connector_user: "druid"
-#druid_metadata_storage_connector_password: "duird"
+# Indexing logs service
+druid_indexer_logs_type: "file"
+druid_indexer_logs_directory: "var/druid/indexing-logs"
+
+# storage type
+druid_storage_type: "local"
+druid_storage_storageDirectory: "/tmp/druid/localStorage"
+
+# metadata storage, if empty will use derby
+druid_metadata_storage_type: ""
+druid_metadata_storage_connector_connectURI: ""
+druid_metadata_storage_connector_user: ""
+druid_metadata_storage_connector_password: ""
+
+# service discovery
+druid_selectors_indexing_service_name: "druid/overlord"
+druid_selectors_coordinator_service_name: "druid/coordinator"
+
+# monitoring
+druid_monitoring_monitors_list: ["com.metamx.metrics.JvmMonitor"]
+druid_emitter: "logging"
+druid_emitter_logging_loglevel: "info"
 
 # Upstart vars
 druid_upstart_java_exec: "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
-druid_upstart_common_dir: "config/_common"
+druid_upstart_common_dir: "conf/druid/_common"
 
-druid_upstart_coordinator_jvm_properties: "-Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
-druid_upstart_coordinator_lib_classpath: "config/coordinator:lib/*"
+druid_upstart_coordinator_jvm_properties: "-server -Xms256m -Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
+druid_upstart_coordinator_lib_classpath: "conf/druid/coordinator:lib/*"
 
-druid_upstart_historical_jvm_properties: "-Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
-druid_upstart_historical_lib_classpath: "config/historical:lib/*"
+druid_upstart_historical_jvm_properties: "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -XX:MaxDirectMemorySize=4096m -Xmx1g -Xms1g -server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
+druid_upstart_historical_lib_classpath: "conf/druid/historical:lib/*"
 
-druid_upstart_broker_jvm_properties: "-Xmx256m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
-druid_upstart_broker_lib_classpath: "config/broker:lib/*"
+druid_upstart_broker_jvm_properties: "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -XX:MaxDirectMemorySize=4096m -Xmx1g -Xms1g -server -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
+druid_upstart_broker_lib_classpath: "conf/druid/broker:lib/*"
 
-druid_upstart_realtime_jvm_properties: "-Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8  -Djava.io.tmpdir={{ druid_java_tmp_dir }} -Ddruid.realtime.specFile=examples/wikipedia/wikipedia_realtime.spec"
-druid_upstart_realtime_lib_classpath: "config/realtime:lib/*"
+druid_upstart_middlemanager_jvm_properties: "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -XX:MaxDirectMemorySize=4096m -Xmx1g -Xms1g -server -Duser.timezone=UTC -Dfile.encoding=UTF-8"
+druid_upstart_middlemanager_lib_classpath: "conf/druid/middleManager:lib/*"
 
-druid_upstart_overlord_jvm_properties: "-Xmx2g -Duser.timezone=UTC -Dfile.encoding=UTF-8  -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
-druid_upstart_overlord_lib_classpath: "config/overlord:lib/*"
-
-# changed to accept all: examples/indexing/wikipedia.spec
-druid_upstart_kafka_realtime_jvm_properties: "-Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8  -Djava.io.tmpdir={{ druid_java_tmp_dir }} -Ddruid.realtime.specFile=examples/indexing/wikipedia-accept-all.spec"
-druid_upstart_kafka_realtime_lib_classpath: "config/realtime:lib/*"
-
-# hadoop extension for upstart - not used if hadoop isn't the deep storage mechanism
-druid_hadoop_home: "/opt/hadoop-2.7.2"
-druid_hadoop_etc_hadoop_dir: "{{ druid_hadoop_home }}/etc/hadoop"
-druid_hadoop_common_classpath: "{{ druid_hadoop_home }}/share/hadoop/common/*"
-druid_hadoop_common_lib_classpath: "{{ druid_hadoop_home }}/share/hadoop/common/lib/*"
-druid_hadoop_hdfs_dir: "{{ druid_hadoop_home }}/share/hadoop/hdfs"
-druid_hadoop_hdfs_classpath: "{{ druid_hadoop_home }}/share/hadoop/hdfs/*"
-druid_hadoop_hdfs_lib_classpath: "{{ druid_hadoop_home }}/share/hadoop/hdfs/lib/*"
-druid_hadoop_yarn_classpath: "{{ druid_hadoop_home }}/share/hadoop/yarn/*"
-druid_hadoop_yarn_lib_classpath: "{{ druid_hadoop_home }}/share/hadoop/yarn/lib/*"
-druid_hadoop_mapreduce_classpath: "{{ druid_hadoop_home }}/share/hadoop/mapreduce/*"
-druid_hadoop_mapreduce_lib_classpath: "{{ druid_hadoop_home }}/share/hadoop/mapreduce/lib/*"
-druid_hadoop_contrib_capacity_scheduler_classpath: "/contrib/capacity-scheduler/*.jar"
-druid_hadoop_classpath: "{{ druid_hadoop_etc_hadoop_dir }}:{{ druid_hadoop_common_lib_classpath }}:{{ druid_hadoop_common_classpath }}:{{ druid_hadoop_hdfs_dir }}:{{ druid_hadoop_hdfs_lib_classpath }}:{{ druid_hadoop_hdfs_classpath }}:{{ druid_hadoop_yarn_lib_classpath }}:{{ druid_hadoop_yarn_classpath }}:{{ druid_hadoop_mapreduce_lib_classpath }}:{{ druid_hadoop_mapreduce_classpath }}:{{ druid_hadoop_contrib_capacity_scheduler_classpath }}"
-
-# Deep storage
-druid_storage_type: "local"
-druid_storage_storageDirectory: "/tmp/druid/localStorage"
-# Override for hdfs deep storage
-#druid_storage_type: "hdfs"
-#druid_storage_storageDirectory: "hdfs://localhost:9000/druid_segs/"
-
-# coordinator/runtime.properties
-druid_coordinator_host: localhost
-druid_coordinator_port: 8081
-
-# historical/runtime.properties
-druid_historical_host: localhost
-druid_historical_port: 8083
-druid_historical_service: "historical"
-druid_historical_processing_buffer_sizeBytes: "100000000"
-druid_historical_processing_numThreads: "1"
-druid_historical_server_maxSize: "10000000000"
-
-# broker/runtime.properties
-druid_broker_host: localhost
-druid_broker_port: 8082
-
-# realtime/runtime.properties
-druid_realtime_host: localhost
-druid_realtime_port: 8084
-
-# overlord/runtime.properties
-# Default host: localhost. Default port: 8090. If you run each node type on its own node in production, you should override these values to be IP:8080
-druid_overlord_host: localhost
-druid_overlord_port: 8090
-druid_overlord_service: overlord
-druid_overlord_indexer_queue_startDelay: "PT0M"
-druid_overlord_indexer_runner_javaOpts: "-server -Xmx256m"
-druid_overlord_indexer_fork_property_druid_processing_numThreads: 1
-druid_overlord_indexer_fork_property_druid_computation_buffer_size: 100000000
-# If running a middle Manager, set druid_overlord_indexer_runner_type to "remote"
-druid_overlord_indexer_runner_type: ""
+druid_upstart_overlord_jvm_properties: "-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager -Xmx256m -Xms256m -server -Duser.timezone=UTC -Dfile.encoding=UTF-8  -Djava.io.tmpdir={{ druid_java_tmp_dir }}"
+druid_upstart_overlord_lib_classpath: "conf/druid/overlord:lib/*"

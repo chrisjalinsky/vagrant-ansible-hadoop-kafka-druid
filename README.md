@@ -263,17 +263,17 @@ may have to update /var/log/kafka/meta.properties is the broker id has changed
 
 Create a topic for ingestion:
 ```
-./bin/kafka-topics.sh --create --zookeeper cd1.lan:2181 --replication-factor 3 --partitions 1 --topic wikipedia
+./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181 --replication-factor 3 --partitions 1 --topic wikipedia
 ```
 
 Check the replication and partition:
 ```
-bin/kafka-topics.sh --describe --zookeeper cd1.lan:2181 --topic wikipedia
+bin/kafka-topics.sh --describe --zookeeper zookeeper0.lan:2181 --topic wikipedia
 ```
 
 Create a producer:
 ```
-./bin/kafka-console-producer.sh --broker-list cd1.lan:9092 --topic wikipedia
+./bin/kafka-console-producer.sh --broker-list zookeeper0.lan:9092 --topic wikipedia
 ```
 
 Start realtime with the kafka wikipedia spec:
