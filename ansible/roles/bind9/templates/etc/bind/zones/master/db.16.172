@@ -14,16 +14,16 @@ $TTL    604800
 
 ; PTR Records
 
-8.10  IN   PTR   zookeeper0.lan.
-8.11  IN   PTR   zookeeper1.lan.
-8.12  IN   PTR   zookeeper2.lan.
+10.8  IN   PTR   zookeeper0.lan.
+11.8  IN   PTR   zookeeper1.lan.
+12.8  IN   PTR   zookeeper2.lan.
 
-8.20  IN   PTR   kafka0.lan.
-8.21  IN   PTR   kafka1.lan.
-8.22  IN   PTR   kafka2.lan.
+20.8  IN   PTR   kafka0.lan.
+21.8  IN   PTR   kafka1.lan.
+22.8  IN   PTR   kafka2.lan.
 
-8.30  IN   PTR   hadoop0.lan.  
-8.31  IN   PTR   hadoop1.lan.  
-8.32  IN   PTR   hadoop2.lan.
+30.8  IN   PTR   hadoop0.lan.  
+31.8  IN   PTR   hadoop1.lan.  
+32.8  IN   PTR   hadoop2.lan.
 
-8.40  IN   PTR   druid0.lan.
+40.8  IN   PTR   druid0.lan.

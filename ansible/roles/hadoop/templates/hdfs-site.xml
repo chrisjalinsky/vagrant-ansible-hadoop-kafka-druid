@@ -8,6 +8,17 @@
     <name>dfs.namenode.name.dir</name>
     <value>file://{{hadoop_dfs_name_dir}}</value>
   </property>
+  <property>
+    <name>dfs.namenode.rpc-bind-host</name>
+    <value>0.0.0.0</value>
+    <description>
+    The actual address the RPC server will bind to. If this optional address is
+    set, it overrides only the hostname portion of dfs.namenode.rpc-address.
+    It can also be specified per name node or name service for HA/Federation.
+    This is useful for making the name node listen on all interfaces by
+    setting it to 0.0.0.0.
+    </description>
+  </property>
   {% endif %}
   {% if hadoop_node_type is defined and hadoop_node_type == "datanode" %}
   <property>

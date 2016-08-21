@@ -5,4 +5,4 @@
   gather_facts: yes
   roles:
     - openjdk-8
-    - maven3
+    #- maven3
