@@ -1,0 +1,10 @@
+---
+
+- hosts: druid_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: tranquility

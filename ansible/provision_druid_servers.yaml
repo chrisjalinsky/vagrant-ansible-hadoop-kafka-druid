@@ -18,4 +18,4 @@
       druid_metadata_storage_connector_password: "{{ druid_cluster_druid_db_password }}"
       druid_indexer_logs_type: "hdfs"
       druid_indexer_logs_directory: "hdfs://hadoop0.lan:9000/user/druid/indexing-logs/"      
-      druid_extensions_loadlist: ["druid-hdfs-storage", "druid-kafka-eight", "druid-s3-extensions", "druid-histogram", "druid-datasketches", "druid-lookups-cached-global", "mysql-metadata-storage"]
+      druid_extensions_loadlist: ["druid-hdfs-storage", "mysql-metadata-storage"]

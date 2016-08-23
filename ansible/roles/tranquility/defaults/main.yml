@@ -1,0 +1,12 @@
+---
+
+tranquility_version: "0.8.0"
+
+tranquility_dir: "/opt/tranquility"
+tranquility_zk_connect: "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181"
+
+# job
+tranquility_server_config_dest: "/opt/druid-0.9.1.1/conf-quickstart/tranquility/server.json"
+
+# Upstart vars
+tranquility_upstart_java_exec: "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"

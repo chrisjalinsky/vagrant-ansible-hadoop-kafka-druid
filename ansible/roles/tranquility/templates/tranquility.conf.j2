@@ -1,0 +1,9 @@
+
+# Tranquility Service
+
+description "Druid Tranquility"
+
+script
+chdir {{tranquility_dir}}/tranquility-distribution-{{ tranquility_version }}
+exec ./bin/tranquility server -configFile {{tranquility_server_config_dest}}
+end script

@@ -1,0 +1,31 @@
+---
+
+- name: Ensure {{ tranquility_dir }} dir exists
+  file:
+    dest: "{{ item.dest }}"
+    state: directory
+  with_items:
+    - dest: "/opt/src"
+    - dest: "{{ tranquility_dir }}"
+  
+- name: Download tranquility to opt/src
+  get_url:
+    url: "http://static.druid.io/tranquility/releases/tranquility-distribution-{{ tranquility_version }}.tgz"
+    dest: "/opt/src/tranquility-distribution-{{ tranquility_version }}.tgz"
+
+- name: Unpack tranquility tarball
+  unarchive:
+    src: "/opt/src/tranquility-distribution-{{ tranquility_version }}.tgz"
+    dest: "{{ tranquility_dir }}"
+    remote_src: yes
+    copy: no
+
+- name: Template config
+  template:
+    src: index.json.j2
+    dest: "{{ tranquility_server_config_dest }}"
+
+- name: Template upstart
+  template:
+    src: "tranquility.conf.j2"
+    dest: "/etc/init/tranquility.conf"

@@ -202,8 +202,7 @@ Upstart Files:
 * ```start|stop|restart druid-coordinator```
 * ```start|stop|restart druid-historical```
 * ```start|stop|restart druid-broker```
-* ```start|stop|restart druid-realtime```
-* ```start|stop|restart druid-kafka-realtime```
+* ```start|stop|restart druid-middlemanager```
 * ```start|stop|restart druid-overlord```
 
 runtime logs at /var/log/upstart/*
@@ -220,6 +219,7 @@ start druid-overlord
 start druid-coordinator 
 start druid-historical
 start druid-broker
+start druid-middlemanager
 ```
 
 One by one, check for errors as the servers start up:
@@ -228,13 +228,17 @@ tail -n 1000 -f /var/log/upstart/druid-overlord.log
 tail -n 1000 -f /var/log/upstart/druid-coordinator.log
 tail -n 1000 -f /var/log/upstart/druid-historical.log
 tail -n 1000 -f /var/log/upstart/druid-broker.log
+tail -n 1000 -f /var/log/upstart/druid-middlemanager.log
+```
+###Tranquility Server
+The tranquility role installs a server to communicate with druid in realtime
+```
+start tranquility
 ```
 
-Task:
-=====
+###Generate metrics Task:
 ```
-curl -X 'POST' -H 'Content-Type:application/json' -d @examples/indexing/wikipedia_index_task.json <overlord>:8090/druid/indexer/v1/task
-curl -X 'POST' -H 'Content-Type:application/json' -d @examples/indexing/wikipedia_index_task.json druid0.lan:8090/druid/indexer/v1/task
+/opt/druid-0.9.1.1/bin/generate-example-metrics | curl -XPOST -H'Content-Type: application/json' --data-binary @- http://druid0.lan:8200/v1/post/metrics
 ```
 
 Coordinator console:
@@ -246,8 +250,7 @@ http://druid0.lan:8081
 HDFS Segment:
 /user/druid/segments/wikipedia/20130831T000000.000Z_20130901T000000.000Z/2016-01-17T03_23_16.720Z/0
 
-Additional Queries
-==================
+###Additional Queries
 
 To query for ALL data (across realtime and historical nodes) issue the query to the broker node:
 
@@ -263,46 +266,149 @@ may have to update /var/log/kafka/meta.properties is the broker id has changed
 
 Create a topic for ingestion:
 ```
-./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181 --replication-factor 3 --partitions 1 --topic wikipedia
+./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181 --replication-factor 3 --partitions 1 --topic pageviews
 ```
 
 Check the replication and partition:
 ```
-bin/kafka-topics.sh --describe --zookeeper zookeeper0.lan:2181 --topic wikipedia
+bin/kafka-topics.sh --describe --zookeeper zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181 --topic pageviews
 ```
 
 Create a producer:
 ```
-./bin/kafka-console-producer.sh --broker-list zookeeper0.lan:9092 --topic wikipedia
+./bin/kafka-console-producer.sh --broker-list kafka0.lan:9092,kafka1.lan:9092,kafka2.lan:9092 --topic pageviews
 ```
 
-Start realtime with the kafka wikipedia spec:
+###Tranquility Kafka Consumer
+root@druid0:/opt/druid-0.9.1.1/bin# cat /opt/druid-0.9.1.1/conf-quickstart/tranquility/kafka.json 
 ```
-java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8         \
-     -Ddruid.realtime.specFile=examples/indexing/wikipedia.spec \
-     -classpath "config/_common:config/realtime:lib/*"          \
-     io.druid.cli.Main server realtime
+{
+  "dataSources" : {
+    "pageviews-kafka" : {
+      "spec" : {
+        "dataSchema" : {
+          "dataSource" : "pageviews-kafka",
+          "parser" : {
+            "type" : "string",
+            "parseSpec" : {
+              "timestampSpec" : {
+                "column" : "time",
+                "format" : "auto"
+              },
+              "dimensionsSpec" : {
+                "dimensions" : ["url","user"]
+              },
+              "format" : "json"
+            }
+          },
+          "granularitySpec" : {
+            "type" : "uniform",
+            "segmentGranularity" : "minute",
+            "queryGranularity" : "none"
+          },
+          "metricsSpec" : [
+            {
+              "type" : "count",
+              "name" : "views"
+            },
+            {
+              "name" : "latencyMs",
+              "type" : "doubleSum",
+              "fieldName" : "latencyMs"
+            }
+          ]
+        },
+        "ioConfig" : {
+          "type" : "realtime"
+        },
+        "tuningConfig" : {
+          "type" : "realtime",
+          "maxRowsInMemory" : "100000",
+          "intermediatePersistPeriod" : "PT10M",
+          "windowPeriod" : "PT10M"
+        }
+      },
+      "properties" : {
+        "task.partitions" : "1",
+        "task.replicants" : "1",
+        "topicPattern" : "pageviews"
+      }
+    }
+  },
+  "properties" : {
+    "zookeeper.connect" : "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181",
+    "druid.discovery.curator.path" : "/druid/discovery",
+    "druid.selectors.indexing.serviceName" : "druid/overlord",
+    "commit.periodMillis" : "15000",
+    "consumer.numThreads" : "2",
+    "kafka.zookeeper.connect" : "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181",
+    "kafka.group.id" : "tranquility-kafka"
+  }
+}
+```
+###Metabase UI
+```
+java -jar metabase.jar
 ```
 
-Had to append hadoop jars to the classpath (got the classes by: executing $ hadoop classpath and appending):
-
+Browse to:
 ```
-java -Xmx512m -Duser.timezone=UTC -Dfile.encoding=UTF-8 -Ddruid.realtime.specFile=examples/indexing/wikipedia.spec -classpath "config/_common:config/realtime:lib/*:/opt/hadoop-2.7.2/etc/hadoop:/opt/hadoop-2.7.2/share/hadoop/common/lib/*:/opt/hadoop-2.7.2/share/hadoop/common/*:/opt/hadoop-2.7.2/share/hadoop/hdfs:/opt/hadoop-2.7.2/share/hadoop/hdfs/lib/*:/opt/hadoop-2.7.2/share/hadoop/hdfs/*:/opt/hadoop-2.7.2/share/hadoop/yarn/lib/*:/opt/hadoop-2.7.2/share/hadoop/yarn/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/lib/*:/opt/hadoop-2.7.2/share/hadoop/mapreduce/*:/contrib/capacity-scheduler/*.jar" io.druid.cli.Main server realtime
-```
-
-Paste the ingestion into Kafka producer:
-
-```
-{"timestamp": "2016-01-11T00:30:00.000Z", "page": "Gypsy Danger 4", "language" : "en", "user" : "nuclear", "unpatrolled" : "true", "newPage" : "true", "robot": "false", "anonymous": "false", "namespace":"article", "continent":"North America", "country":"United States", "region":"Bay Area", "city":"San Francisco", "added": 57, "deleted": 200, "delta": -143}
-{"timestamp": "2016-01-11T00:30:01.000Z", "page": "Striker Eureka 4", "language" : "en", "user" : "speed", "unpatrolled" : "false", "newPage" : "true", "robot": "true", "anonymous": "false", "namespace":"wikipedia", "continent":"Australia", "country":"Australia", "region":"Cantebury", "city":"Syndey", "added": 459, "deleted": 129, "delta": 330}
-{"timestamp": "2016-01-11T00:30:02.000Z", "page": "Cherno Alpha 4", "language" : "ru", "user" : "masterYi", "unpatrolled" : "false", "newPage" : "true", "robot": "true", "anonymous": "false", "namespace":"article", "continent":"Asia", "country":"Russia", "region":"Oblast", "city":"Moscow", "added": 123, "deleted": 12, "delta": 111}
-{"timestamp": "2016-01-11T00:30:03.000Z", "page": "Crimson Typhoon 4", "language" : "zh", "user" : "triplets", "unpatrolled" : "true", "newPage" : "false", "robot": "true", "anonymous": "false", "namespace":"wikipedia", "continent":"Asia", "country":"China", "region":"Shanxi", "city":"Taiyuan", "added": 905, "deleted": 5, "delta": 900}
-{"timestamp": "2016-01-11T00:30:04.000Z", "page": "Coyote Tango 4", "language" : "ja", "user" : "stringer", "unpatrolled" : "true", "newPage" : "false", "robot": "true", "anonymous": "false", "namespace":"wikipedia", "continent":"Asia", "country":"Japan", "region":"Kanto", "city":"Tokyo", "added": 1, "deleted": 10, "delta": -9}
+http://druid0.lan:3000
 ```
 
-Query the data:
+###Generating Metrics
+root@druid0:/opt/druid-0.9.1.1/bin# cat genmetrics 
 ```
-curl -XPOST -H'Content-type: application/json' \
-  "http://cd1.lan:8084/druid/v2/?pretty" \
-  -d'{"queryType":"timeBoundary","dataSource":"wikipedia"}'
+#!/usr/bin/env python
+
+import argparse
+import json
+import random
+import sys
+from datetime import datetime
+
+def main():
+  parser = argparse.ArgumentParser(description='Generate example page request latency metrics.')
+  parser.add_argument('--count', '-c', type=int, default=25, help='Number of events to generate (negative for unlimited)')
+  args = parser.parse_args()
+
+  count = 0
+  while args.count < 0 or count < args.count:
+    timestamp = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    r = random.randint(1, 4)
+    if r == 1 or r == 2:
+      user = 'bill'
+    elif r == 3:
+      user = 'tom'
+    else:
+      user = 'user' + str(random.randint(1, 99))
+
+    u = random.randint(1, 4)
+    if u == 1 or u == 2:
+      url = '/'
+    elif u == 3:
+      url = '/login'
+    else:
+      url = '/page' + str(random.randint(1, 99))
+
+    views = random.randint(1, 200)
+
+    latencyMs = random.randint(80, 400)
+
+    print(json.dumps({
+      'time': timestamp,
+      'latencyMs': int(latencyMs),
+      'url': url,
+      'views': int(views)
+    }))
+
+    count += 1
+
+try:
+  main()
+except KeyboardInterrupt:
+  sys.exit(1)
 ```
+
+Paste output into the Kafka Producer

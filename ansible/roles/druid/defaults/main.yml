@@ -25,7 +25,7 @@ druid_zk_paths_base: "/druid"
 # common.runtime.properties
 
 # default extensions
-druid_extensions_loadlist: ["druid-hdfs-storage", "druid-kafka-eight", "druid-s3-extensions", "druid-histogram", "druid-datasketches", "druid-lookups-cached-global", "mysql-metadata-storage"]
+druid_extensions_loadlist: ["druid-hdfs-storage", "druid-kafka-eight", "druid-histogram", "druid-datasketches", "druid-lookups-cached-global", "mysql-metadata-storage"]
 
 # Indexing logs service
 druid_indexer_logs_type: "file"
