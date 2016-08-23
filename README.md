@@ -231,7 +231,9 @@ tail -n 1000 -f /var/log/upstart/druid-broker.log
 tail -n 1000 -f /var/log/upstart/druid-middlemanager.log
 ```
 ###Tranquility Server
-The tranquility role installs a server to communicate with druid in realtime
+The tranquility role installs a server to communicate with druid in realtime.
+
+TODO: create multiple upstart scripts...1 server for http and 1 for kafka. It's currently set for kafka, so the immediately following generation doesn't work.
 ```
 start tranquility
 ```
