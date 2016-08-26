@@ -230,23 +230,39 @@ tail -n 1000 -f /var/log/upstart/druid-historical.log
 tail -n 1000 -f /var/log/upstart/druid-broker.log
 tail -n 1000 -f /var/log/upstart/druid-middlemanager.log
 ```
-###Tranquility Server
-The tranquility role installs a server to communicate with druid in realtime.
+###Tranquility Kafka Server
+The tranquility role installs a kafka consumer server and http server to communicate with druid in realtime.
 
-TODO: create multiple upstart scripts...1 server for http and 1 for kafka. It's currently set for kafka, so the immediately following generation doesn't work.
 ```
-start tranquility
+start tranquility_kafka
 ```
+####Then on kafka, use the bin tools:
+```
+./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181 --replication-factor 3 --partitions 1 --topic metrics
+```
+####Start a Kafka Producer:
+```
+./bin/kafka-console-producer.sh --broker-list kafka0.lan:9092,kafka1.lan:9092,kafka2.lan:9092 --topic metrics
+```
+Generate Metrics with a python script, genmetrics.py
+<path> on <host>
 
-###Generate metrics Task:
+###Tranquility HTTP server
+```
+start tranquility_http
+```
+####In the same folder, generate and POST to http server - Generate metrics Task:
 ```
 /opt/druid-0.9.1.1/bin/generate-example-metrics | curl -XPOST -H'Content-Type: application/json' --data-binary @- http://druid0.lan:8200/v1/post/metrics
 ```
+####Use the Metabase web app to see realtime druid data
 
-Coordinator console:
+####Coordinator console:
+```
 http://druid0.lan:8090/console.html
+```
 
-Druid Console:
+####Druid Console:
 http://druid0.lan:8081
 
 HDFS Segment:

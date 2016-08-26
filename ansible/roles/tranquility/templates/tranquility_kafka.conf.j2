@@ -1,0 +1,9 @@
+
+# Tranquility Kafka Consumer Server
+
+description "Druid Tranquility Kafka Consumer Server"
+
+script
+chdir {{tranquility_dir}}/tranquility-distribution-{{ tranquility_version }}
+exec ./bin/tranquility kafka -configFile {{tranquility_kafka_server_config_dest}}
+end script

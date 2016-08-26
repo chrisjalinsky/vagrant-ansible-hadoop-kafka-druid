@@ -7,6 +7,7 @@
   with_items:
     - dest: "/opt/src"
     - dest: "{{ tranquility_dir }}"
+    - dest: "{{ tranquility_bin_dir }}"
   
 - name: Download tranquility to opt/src
   get_url:
@@ -22,10 +23,25 @@
 
 - name: Template config
   template:
-    src: index.json.j2
-    dest: "{{ tranquility_server_config_dest }}"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode | default('0644') }}"
+  with_items:
+    - src: python_gen_kafka_metrics.py.j2
+      dest: "{{ tranquility_bin_dir }}/python_gen_kafka_metrics.py"
+      mode: "0755"
+    - src: http.json.j2
+      dest: "{{ tranquility_http_server_config_dest }}"
+    - src: kafka.json.j2
+      dest: "{{ tranquility_kafka_server_config_dest }}"
 
 - name: Template upstart
   template:
-    src: "tranquility.conf.j2"
-    dest: "/etc/init/tranquility.conf"
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "0755"
+  with_items:
+    - src: "tranquility_kafka.conf.j2"
+      dest: "/etc/init/tranquility_kafka.conf"
+    - src: "tranquility_http.conf.j2"
+      dest: "/etc/init/tranquility_http.conf"
