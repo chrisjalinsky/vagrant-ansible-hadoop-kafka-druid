@@ -17,15 +17,16 @@ function run_playbook () {
 
 echo "Beginning Installation at $(date)."
 
+run_playbook provision_hostsfile.yaml inventory.py install.out
 run_playbook provision_core_servers.yaml inventory.py install.out
 run_playbook update_resolv.yaml inventory.py install.out
 run_playbook provision_common_packages.yaml inventory.py install.out
 run_playbook provision_java_packages.yaml inventory.py install.out
 run_playbook provision_zookeeper_servers.yaml inventory.py install.out
-run_playbook provision_hadoop_node_hostfile.yaml inventory.py install.out
 run_playbook provision_hadoop_servers.yaml inventory.py install.out
 run_playbook provision_kafka_servers.yaml inventory.py install.out
 run_playbook provision_mysql_servers.yaml inventory.py install.out
-#run_playbook provision_druid_servers.yaml inventory.py install.out
+run_playbook provision_druid_servers.yaml inventory.py install.out
+run_playbook provision_tranquility_servers.yaml inventory.py install.out
 
 echo "Ending Installation at $(date)."

@@ -1,0 +1,39 @@
+---
+
+- name: Ensure hostfile is correct
+  hosts: all
+  become: yes
+  become_user: root
+  tasks:
+    - name: Set host ip and hostname facts
+      set_fact:
+        hostsfile_host_ip: "{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}"
+        hostsfile_hostname: "{{ inventory_hostname }}"
+
+    - name: Set host ip regex fact
+      set_fact:
+        hostsfile_ip_addr_regex: "{{ hostsfile_host_ip | regex_replace('\\.', '\\\\.') }}"
+        hostsfile_localhost_regex: "{{ '127.0.0.1' | regex_replace('\\.', '\\\\.') }}"
+        hostsfile_localhost_alt_regex: "{{ '127.0.1.1' | regex_replace('\\.', '\\\\.') }}"
+    - name: Debug facts
+      debug:
+        var: "{{ item }}"
+      with_items:
+        - hostsfile_ip_addr_regex
+        - hostsfile_hostname
+        - hostsfile_host_ip
+
+    - name: Ensure localhost lineinfile absent
+      lineinfile:
+        regexp: "{{ item.regexp }}"
+        dest: "/etc/hosts"
+        state: absent
+      with_items:
+        - regexp: "^{{ hostsfile_localhost_regex }}\\s+{{ hostsfile_hostname }}.*"
+        - regexp: "^{{ hostsfile_localhost_alt_regex }}\\s+{{ hostsfile_hostname }}.*"
+
+    - name: Ensure lineinfile present
+      lineinfile:
+        line: "{{ hostsfile_host_ip }} {{ hostsfile_hostname }}"
+        regexp: "^{{ hostsfile_ip_addr_regex }}.*"
+        dest: "/etc/hosts"
