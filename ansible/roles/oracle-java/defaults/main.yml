@@ -1,0 +1,4 @@
+---
+
+oracle_java_version: "8"
+oracle_java_home: "/usr/lib/jvm/java-{{ oracle_java_version }}-oracle"

@@ -20,5 +20,21 @@
   template: src=server.properties dest={{kafka_conf_dir}}/server.properties owner=kafka group=kafka
   notify: Restart kafka
 
+- name: Configure mirror maker producer properties for kafka
+  template: src=mirror-maker-producer.properties dest={{kafka_conf_dir}}/mirror-maker-producer.properties owner=kafka group=kafka
+  notify: Restart kafka
+
+- name: Configure mirror maker consumer properties for kafka
+  template: src=mirror-maker-consumer.properties dest={{kafka_conf_dir}}/mirror-maker-consumer.properties owner=kafka group=kafka
+  notify: Restart kafka
+
+- name: Configure mirror maker init for kafka
+  template: src=mirror-maker.conf dest=/etc/init/mirror-maker.conf
+  notify: Restart mirror-maker
+
+- name: Start mirror-maker
+  when: kafka_mirror_maker_enable == "yes"
+  service: name=mirror-maker state=started
+
 - name: Start kafka
   service: name=kafka state=started enabled=yes

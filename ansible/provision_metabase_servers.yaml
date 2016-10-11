@@ -1,0 +1,9 @@
+- hosts: metabase_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  roles:
+    - role: metabase
+      metabase_java_exec: "/usr/lib/jvm/java-8-oracle/bin/java"

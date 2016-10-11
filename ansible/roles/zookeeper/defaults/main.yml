@@ -1,7 +1,12 @@
 ---
+
 zookeeper_version: 3.4.8
-zookeeper_url: http://apache.org/dist/zookeeper/stable/zookeeper-{{zookeeper_version}}.tar.gz
-zookeeper_dir: /opt/zookeeper-{{zookeeper_version}}
+zookeeper_download: "no"
+zookeeper_archive: "zookeeper-{{ zookeeper_version}}.tar.gz"
+zookeeper_url: http://mirrors.ibiblio.org/apache/zookeeper/zookeeper-{{zookeeper_version}}/{{zookeeper_archive}}
+zookeeper_base_dir: "/opt"
+zookeeper_dir: "{{ zookeeper_base_dir }}/zookeeper-{{zookeeper_version}}"
+zookeeper_conf_dir: "{{zookeeper_dir}}/conf"
 zookeeper_data: /var/lib/zookeeper
 zookeeper_logs: /var/log/zookeeper
 

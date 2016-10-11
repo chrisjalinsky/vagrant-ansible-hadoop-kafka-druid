@@ -1,0 +1,34 @@
+---
+
+- name: Ensure Metabase dir present
+  file:
+    dest: "{{ item.dest }}"
+    state: "{{ item.state | default('directory') }}"
+  with_items:
+    - dest: "{{ metabase_dir }}"
+    - dest: "{{ metabase_init_dir }}"
+
+- name: Download files
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - url: "http://downloads.metabase.com/v{{ metabase_version }}/metabase.jar"
+      dest: "{{ metabase_dir }}/metabase.jar"
+
+- name: Template upstart service file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: "metabase.conf"
+      dest: "{{ metabase_init_dir }}/metabase.conf"
+      mode: "0755"
+  notify:
+    - restart metabase
+
+- name: Start Metabase service
+  service:
+    name: metabase
+    state: started

@@ -1,9 +1,24 @@
-- file: path=/opt/src state=directory
+#- file: path=/opt/src state=directory
+#  when: kafka_download == "yes"
 
-- file: path={{kafka_dir}} state=directory
+#- name: Ensure dirs are present
+#  file:
+#    path: "{{ item }}"
+#    state: directory
+#  with_items:
+#    - "{{ kafka_dir }}"
 
-- name: Download kafka package
-  get_url: url={{kafka_pkg_url}} dest=/opt/src/kafka-{{kafka_version}}.tar.gz
+#- name: Download kafka package when kafka_download is set to "yes"
+#  when: kafka_download == "yes"
+#  get_url: url={{kafka_pkg_url}} dest=/opt/src/kafka-{{kafka_version}}.tar.gz
+#
+#- name: Unpack tarball when kafka_download is set to "yes"
+#  when: kafka_download == "yes"
+#  command: tar zxf /opt/src/kafka-{{kafka_version}}.tar.gz --strip-components=1 chdir={{kafka_dir}} creates={{kafka_dir}}/bin
 
-- name: Unpack tarball
-  command: tar zxf /opt/src/kafka-{{kafka_version}}.tar.gz --strip-components=1 chdir={{kafka_dir}} creates={{kafka_dir}}/bin
+- name: Unarchive kafka package to destination when kafka_download is set to "no"
+  when: kafka_download == "no"
+  unarchive:
+    src: "{{ kafka_archive }}"
+    dest: "{{ kafka_base_dir }}"
+    creates: "{{kafka_dir}}/bin"

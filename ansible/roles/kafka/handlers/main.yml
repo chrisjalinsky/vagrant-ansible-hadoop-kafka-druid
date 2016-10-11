@@ -2,3 +2,7 @@
 
 - name: Restart kafka
   service: name=kafka state=restarted
+
+- name: Restart mirror-maker
+  when: kafka_mirror_maker_enable == "yes"
+  service: name=mirror-maker state=restarted

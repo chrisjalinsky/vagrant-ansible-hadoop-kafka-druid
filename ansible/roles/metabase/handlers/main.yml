@@ -1,0 +1,6 @@
+---
+
+- name: restart metabase
+  service:
+    name: metabase
+    state: restarted

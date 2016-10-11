@@ -1,0 +1,10 @@
+---
+
+metabase_version: "0.19.3"
+metabase_dir: "/opt/metabase"
+metabase_jar_path: "{{ metabase_dir }}/metabase.jar"
+
+
+# Upstart vars
+metabase_init_dir: "/etc/init"
+metabase_java_exec: "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"

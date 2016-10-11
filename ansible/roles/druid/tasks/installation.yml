@@ -10,14 +10,20 @@
 - name: Unpack tarball.
   command: tar zxf /opt/src/druid-{{druid_version}}.tar.gz --strip-components=1 chdir={{druid_dir}} creates={{druid_dir}}/lib
 
-- file: path="{{druid_dir}}/mysql-metadata-storage-{{ druid_version }}" state=directory
+- name: Ensure extension dir present
+  when: "{{ druid_version | version_compare('0.8.3', '>') }}"
+  file:
+    path: "{{druid_dir}}/mysql-metadata-storage-{{ druid_version }}"
+    state: directory
 
-- name: Download mySQL extension
+- name: Download mySQL extension when version is greater than 0.8.3
+  when: "{{ druid_version | version_compare('0.8.3', '>') }}"
   get_url:
     url: "http://static.druid.io/artifacts/releases/mysql-metadata-storage-{{ druid_version }}.tar.gz"
     dest: "/opt/src/mysql-metadata-storage-{{ druid_version }}.tar.gz"
 
 - name: Unpack extensions tarball.
+  when: "{{ druid_version | version_compare('0.8.3', '>') }}"
   unarchive:
     src: "/opt/src/mysql-metadata-storage-{{ druid_version }}.tar.gz"
     dest: "{{druid_dir}}/extensions"

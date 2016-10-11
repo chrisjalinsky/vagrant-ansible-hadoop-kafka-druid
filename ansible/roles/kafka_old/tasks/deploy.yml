@@ -1,0 +1,24 @@
+---
+
+- group: name=kafka system=yes
+
+- user: name=kafka group=kafka system=yes
+
+- name: Change ownership on kafka directory.
+  file: path={{kafka_dir}} state=directory owner=kafka group=kafka recurse=yes
+
+- name: Create kafka data folder.
+  file: path={{kafka_data}} state=directory recurse=yes owner=kafka group=kafka
+
+- name: Create kafka logs folder.
+  file: path={{kafka_logs}} state=directory recurse=yes owner=kafka group=kafka
+
+- name: Kafka Upstart script.
+  template: src=kafka.conf dest=/etc/init/kafka.conf
+
+- name: Configure server.properties for kafka
+  template: src=server.properties dest={{kafka_conf_dir}}/server.properties owner=kafka group=kafka
+  notify: Restart kafka
+
+- name: Start kafka
+  service: name=kafka state=started enabled=yes

@@ -1,0 +1,10 @@
+---
+zookeeper_version: 3.4.8
+zookeeper_url: http://apache.org/dist/zookeeper/stable/zookeeper-{{zookeeper_version}}.tar.gz
+zookeeper_dir: /opt/zookeeper-{{zookeeper_version}}
+zookeeper_data: /var/lib/zookeeper
+zookeeper_logs: /var/log/zookeeper
+
+zookeeper_myid: 1
+zookeeper_servers:
+  - localhost

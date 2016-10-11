@@ -22,7 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     
       ip  = meta["hostvars"][host]["vagrant_ip"]  ? meta["hostvars"][host]["vagrant_ip"]  : "10.0.0.#{i + 10}"
       cpu = meta["hostvars"][host]["vagrant_cpu"] ? meta["hostvars"][host]["vagrant_cpu"] : 1
-      mem = meta["hostvars"][host]["vagrant_mem"] ? meta["hostvars"][host]["vagrant_mem"] : 4096
+      mem = meta["hostvars"][host]["vagrant_mem"] ? meta["hostvars"][host]["vagrant_mem"] : 2048
       box = meta["hostvars"][host]["vagrant_box"] ? meta["hostvars"][host]["vagrant_box"] : "ubuntu/trusty64"
       
       config.vm.define "#{host}" do |node|

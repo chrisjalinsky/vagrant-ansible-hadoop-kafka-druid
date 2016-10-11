@@ -8,8 +8,9 @@
 
   roles:
     - role: druid
+      druid_version: "0.9.1.1"
       druid_host_services: ["coordinator", "historical", "broker", "middlemanager", "overlord"]
-      druid_zk_ips: "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181"
+      druid_zk_ips: "zookeeper0.lan:2181"
       druid_storage_type: "hdfs"
       druid_storage_storageDirectory: "hdfs://hadoop0.lan:9000/user/druid/segments/"
       druid_metadata_storage_type: "mysql"
@@ -19,3 +20,4 @@
       druid_indexer_logs_type: "hdfs"
       druid_indexer_logs_directory: "hdfs://hadoop0.lan:9000/user/druid/indexing-logs/"      
       druid_extensions_loadlist: ["druid-hdfs-storage", "mysql-metadata-storage"]
+      druid_upstart_java_exec: "/usr/lib/jvm/java-8-oracle/bin/java"

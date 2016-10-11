@@ -5,9 +5,14 @@
   become_user: root
   roles:
     - role: kafka
-      kafka_zk_endpoint: "zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181"
-      kafka_brokers:
-        - "kafka0.lan"
-        - "kafka1.lan"
-        - "kafka2.lan"
+      kafka_zk_endpoint: "{{ groups['zookeeper_servers'] | join(':2181,') }}:2181"
+      kafka_brokers: "{{ groups['kafka_servers'] }}"
       kafka_host_name: "{{ inventory_hostname }}"
+      kafka_version: "0.8.2.1"
+      kafka_scala_version: "2.10"
+      kafka_mirror_maker_enable: "no"
+      kafka_mirror_maker_group_id: "mirror-group"
+      kafka_mirror_maker_producer_bootstrap_servers: "{{ groups['kafka_servers'] | join(':9092,') }}:9092"
+      kafka_mirror_maker_blacklist: "blacklisttopic"
+      kafka_mirror_maker_num_producers: "1"
+      kafka_mirror_maker_queue_size: "10000"

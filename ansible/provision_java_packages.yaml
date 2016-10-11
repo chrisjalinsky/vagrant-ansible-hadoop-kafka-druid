@@ -4,5 +4,5 @@
   become: yes
   gather_facts: yes
   roles:
-    - openjdk-8
-    #- maven3
+    - role: oracle-java
+      oracle_java_version: "8"

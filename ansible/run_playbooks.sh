@@ -28,5 +28,6 @@ run_playbook provision_kafka_servers.yaml inventory.py install.out
 run_playbook provision_mysql_servers.yaml inventory.py install.out
 run_playbook provision_druid_servers.yaml inventory.py install.out
 run_playbook provision_tranquility_servers.yaml inventory.py install.out
+run_playbook provision_metabase_servers.yaml inventory.py install.out
 
 echo "Ending Installation at $(date)."

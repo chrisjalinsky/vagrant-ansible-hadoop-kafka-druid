@@ -8,7 +8,5 @@
 
   roles:
     - role: zookeeper
-      zookeeper_servers:
-        - "zookeeper0.lan"
-        - "zookeeper1.lan"
-        - "zookeeper2.lan"
+      zookeeper_version: "3.4.5"
+      zookeeper_servers: "{{ groups['zookeeper_servers'] }}"
