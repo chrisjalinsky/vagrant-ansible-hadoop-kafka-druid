@@ -11,8 +11,8 @@
 
 - name: Create hadoop hdfs name dir
   file: path={{hadoop_dfs_name_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
-  when: hadoop_node_type == "namenode"
+  when: hadoop_node_type == "namenode" or hadoop_node_type == "both"
 
 - name: Create hadoop hdfs data dir
   file: path={{hadoop_dfs_data_dir}} state=directory recurse=yes owner="{{hadoop_user}}" group="{{hadoop_group}}"
-  when: hadoop_node_type == "datanode"
+  when: hadoop_node_type == "datanode" or hadoop_node_type == "both"

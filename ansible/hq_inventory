@@ -1,0 +1,6 @@
+[hadoop_servers]
+dash1.hq.rowdy.cc
+
+[zookeeper_servers]
+dash1.hq.rowdy.cc
+

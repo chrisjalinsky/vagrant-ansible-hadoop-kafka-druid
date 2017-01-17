@@ -2,18 +2,18 @@
 
 druid_version: "0.9.1.1"
 druid_url: http://static.druid.io/artifacts/releases/druid-{{ druid_version }}-bin.tar.gz
-druid_dir: /opt/druid-{{druid_version}}
-druid_conf_dir: "{{ druid_dir}}/config"
+druid_dir: /opt/druid-{{ druid_version }}
+druid_conf_dir: "{{ druid_dir }}/config"
 druid_data: /var/lib/druid
 
 # druid app logs dir
 druid_logs: /var/log/druid
 
 # java process tmp logs dir
-druid_java_tmp_dir: "{{ druid_dir}}/logs"
+druid_java_tmp_dir: "{{ druid_dir }}/logs"
 
 druid_host_services: []
-# add services to this list so that ansible will generate upstart templates
+# add services to this list so that ansible start the services
 # ["coordinator", "historical", "broker", "realtime", "kafka-realtime"]
 
 # common.runtime.properties
@@ -50,7 +50,7 @@ druid_monitoring_monitors_list: ["com.metamx.metrics.JvmMonitor"]
 druid_emitter: "logging"
 druid_emitter_logging_loglevel: "info"
 
-# Upstart vars
+# Upstart vars and java classpath vars for services
 druid_upstart_java_exec: "/usr/lib/jvm/java-8-openjdk-amd64/bin/java"
 druid_upstart_common_dir: "conf/druid/_common"
 

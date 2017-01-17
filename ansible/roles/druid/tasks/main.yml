@@ -1,29 +1,7 @@
 ---
 
-#- name: Include install
-#  include: install.yml
-
 - name: Include installation tasks
   include: installation.yml
 
 - name: Include deploy tasks
   include: deploy.yml
-
-#- name: Include common
-#  include: common.yml
-
-#- name: Include coordinator when set
-#  include: coordinator.yml
-#  #when: druid_mode is defined and druid_mode == "coordinator"
-#
-#- name: Include historical when set
-#  include: historical.yml
-#  #when: druid_mode is defined and druid_mode == "historical"
-#
-#- name: Include broker when set
-#  include: broker.yml
-#  #when: druid_mode is defined and druid_mode == "broker"
-#
-#- name: Include realtime when set
-#  include: realtime.yml
-#  #when: druid_mode is defined and druid_mode == "realtime"

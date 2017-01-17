@@ -1,0 +1,10 @@
+# Note: requires Python C lxml run: STATIC_DEPS=true pip install lxml
+- hosts: hadoop_servers
+  become: yes
+  become_user: root
+  vars_files:
+    - vars/makevault.yml
+
+  tasks:
+    - name: Test properties
+      hadoop_properties: name=hive.metastore.uris value={% for node in groups['hadoop_servers'] -%}thrift://{{ hostvars[node]['ansible_eth1']['ipv4']['address'] }}:9083{% if not loop.last %},{% endif %}{% endfor %}  state=present file=/tmp/hive-site.xml

@@ -8,6 +8,7 @@
     - role: hadoop
       hadoop_java_home: "/usr/lib/jvm/java-8-oracle"
       hadoop_node_type: "{{ (inventory_hostname == 'hadoop0.lan') | ternary('namenode','datanode') }}"
+      #hadoop_node_type: "both"
       hadoop_namenode_masters: ["hadoop0.lan"]
       hadoop_namenode_slaves: ["hadoop1.lan"]
       hadoop_dfs_replication: "1"

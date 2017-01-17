@@ -145,8 +145,10 @@ Create a hdfs directory for druid deep storage:
 hdfs dfs -mkdir /user
 hdfs dfs -mkdir /user/druid
 hdfs dfs -mkdir /user/druid/segments
+hdfs dfs -mkdir /user/druid/indexing-logs
 hdfs dfs -chmod 0777 /user/druid
 hdfs dfs -chmod 0777 /user/druid/segments
+hdfs dfs -chmod 0777 /user/druid/indexing-logs
 ```
 ------------------------------------------------
 
@@ -207,13 +209,6 @@ Upstart Files:
 
 runtime logs at /var/log/upstart/*
 
-
-Cluster Batch Data Loading
-==========================
-
-(Druid Documentation)[http://druid.io/docs/latest/tutorials/tutorial-loading-batch-data.html]
-
-In my experience to get around the capacity errors, you need 2 historical nodes.
 ```
 start druid-overlord
 start druid-coordinator 
@@ -229,7 +224,40 @@ tail -n 1000 -f /var/log/upstart/druid-coordinator.log
 tail -n 1000 -f /var/log/upstart/druid-historical.log
 tail -n 1000 -f /var/log/upstart/druid-broker.log
 tail -n 1000 -f /var/log/upstart/druid-middlemanager.log
+
+
+Cluster Batch Data Loading
+==========================
+
+(Druid Documentation)[http://druid.io/docs/latest/tutorials/tutorial-loading-batch-data.html]
+
+In my experience to get around the capacity errors, you need 2 historical nodes.
+
 ```
+###Druid Batch Hadoop Indexer tasks
+
+Prerequisites:
+* On Druid, extract the json example data. ```/opt/druid<version>/bin/init```
+* Copy the example druid json data (druid0.lan:/opt/druid<version>/quickstart/wikiticker-2015-09-12-sampled.json) to Hadoop
+```
+hdfs dfs -mkdir /user/druid/quickstart
+hdfs dfs -chmod -R 0777 /user/druid/quickstart
+hdfs dfs -put ./wikiticker-2015-09-12-sampled.json /user/druid/quickstart/
+hdfs dfs -chmod 0777 /user/druid/quickstart/wikiticker-2015-09-12-sampled.json
+```
+Update the wikiticker-indexer.json spec file to point the path to the data in Hadoop:
+```
+"inputSpec" : {
+  "type" : "static",
+  "paths" : "hdfs://hadoop0.lan:9000/user/druid/quickstart/wikiticker-2015-09-12-sampled.json"
+}
+```
+
+Post index task to overlord:
+```
+root@druid0:/opt/druid-0.9.1.1# curl -X 'POST' -H 'Content-Type:application/json' -d @quickstart/wikiticker-index.json localhost:8090/druid/indexer/v1/task
+```
+
 ###Tranquility Kafka Server
 The tranquility role installs a kafka consumer server and http server to communicate with druid in realtime.
 
@@ -239,10 +267,12 @@ start tranquility_kafka
 ####Then on kafka, use the bin tools:
 ```
 ./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181 --replication-factor 3 --partitions 1 --topic metrics
+./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181 --replication-factor 1 --partitions 1 --topic metrics
 ```
 ####Start a Kafka Producer:
 ```
 ./bin/kafka-console-producer.sh --broker-list kafka0.lan:9092,kafka1.lan:9092,kafka2.lan:9092 --topic metrics
+./bin/kafka-console-producer.sh --broker-list zookeeper0.lan:9092 --topic metrics
 ```
 Generate Metrics with a python script, genmetrics.py
 <path> on <host>
@@ -285,6 +315,7 @@ may have to update /var/log/kafka/meta.properties is the broker id has changed
 Create a topic for ingestion:
 ```
 ./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181,zookeeper1.lan:2181,zookeeper2.lan:2181 --replication-factor 3 --partitions 1 --topic pageviews
+./bin/kafka-topics.sh --create --zookeeper zookeeper0.lan:2181 --replication-factor 1 --partitions 1 --topic pageviews
 ```
 
 Check the replication and partition:
@@ -295,6 +326,7 @@ bin/kafka-topics.sh --describe --zookeeper zookeeper0.lan:2181,zookeeper1.lan:21
 Create a producer:
 ```
 ./bin/kafka-console-producer.sh --broker-list kafka0.lan:9092,kafka1.lan:9092,kafka2.lan:9092 --topic pageviews
+./bin/kafka-console-producer.sh --broker-list zookeeper0.lan:9092 --topic pageviews
 ```
 
 ###Tranquility Kafka Consumer
